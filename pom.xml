@@ -21,8 +21,10 @@
     </properties>
 
     <modules>
-        <module>eureka_server</module>
-        <module>eureka_client</module>
+        <module>eureka-server01</module>
+        <module>eureka-server02</module>
+        <module>eureka-server03</module>
+        <module>eureka-client</module>
         <module>swe-common-core</module>
         <module>sensorml-core</module>
         <module>swe-common-om</module>
