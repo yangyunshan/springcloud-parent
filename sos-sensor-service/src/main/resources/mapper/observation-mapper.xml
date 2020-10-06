@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sensorweb.datacenter.dao.ObservationMapper">
+    <sql id="insertFields">
+        observation_id, observation_description, observation_type, observation_time, procedure_id, feature_of_interest_id, observed_property, observation_value
+    </sql>
+
+    <sql id="selectFields">
+        id, observation_id, observation_description, observation_type, observation_time, procedure_id, feature_of_interest_id, observed_property, observation_value
+    </sql>
+
+    <insert id="insertData" parameterType="Observation">
+        INSERT INTO observation (<include refid="insertFields"></include>)
+        VALUES (#{outId}, #{description}, #{type}, #{time}, #{procedureId}, #{foiId}, #{observedProperty}, #{value})
+    </insert>
+
+    <delete id="deleteByProcedureId">
+        DELETE FROM observation
+        WHERE procedure_id = #{procedureId}
+    </delete>
+
+    <select id="selectObservationsByConditions" resultMap="observation">
+        SELECT <include refid="selectFields"></include>
+        FROM observation
+        WHERE 1 = 1
+        <if test="procedureIds!=null">
+            <foreach collection="procedureIds" item="procedureId" open="and procedure_id IN(" close=")" separator=",">
+                #{procedureId}
+            </foreach>
+        </if>
+        <if test="observedProperties!=null">
+            <foreach collection="observedProperties" item="observedProperty" open="and observed_property IN(" close=")" separator=",">
+                #{observedProperty}
+            </foreach>
+        </if>
+        <if test="begin!=null and end!=null">
+            and observation_time between #{begin} and #{end}
+        </if>
+    </select>
+
+    <select id="selectObservationsByDateTime" resultType="int">
+        SELECT count(*)
+        FROM observation
+        WHERE 1 = 1
+        <if test="begin!=null and end!=null">
+            and observation_time between #{begin} and #{end}
+        </if>
+    </select>
+
+    <select id="selectObservationsBySensorId" resultMap="observation">
+        SELECT <include refid="selectFields"></include>
+        FROM observation
+        WHERE 1 = 1
+        <if test="sensorId!=null">
+            and procedure_id = #{sensorId}
+        </if>
+    </select>
+
+    <resultMap id="observation" type="Observation">
+        <id property="id" column="id"/>
+        <result property="outId" column="observation_id"/>
+        <result property="description" column="observation_description"/>
+        <result property="time" javaType="java.time.Instant" column="observation_time" jdbcType="TIMESTAMP"/>
+        <result property="type" column="observation_type"/>
+        <result property="procedureId" column="procedure_id"/>
+        <result property="foiId" column="feature_of_interest_id"/>
+        <result property="observedProperty" column="observed_property"/>
+        <result property="value" column="observation_value"/>
+    </resultMap>
+
+</mapper>

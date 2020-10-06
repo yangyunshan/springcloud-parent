@@ -44,7 +44,7 @@ public class DescribeSensorResponse extends OWSResponse
     protected AbstractProcess procedureDescription;
     
         
-    protected DescribeSensorResponse()
+    public DescribeSensorResponse()
     {
         messageType = "DescribeSensorResponse";
     }

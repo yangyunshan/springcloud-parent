@@ -11,7 +11,12 @@
  
  The Original Code is the "OGC Service Framework".
  
- The Initial Developer of the Original Code is the VAST team at the University of Alabama in Huntsville (UAH). <http://vast.uah.edu> Portions created by the Initial Developer are Copyright (C) 2007 the Initial Developer. All Rights Reserved. Please Contact Mike Botts <mike.botts@uah.edu> for more information.
+ The Initial Developer of the Original Code is the VAST team at the
+ University of Alabama in Huntsville (UAH). <http://vast.uah.edu>
+ Portions created by the Initial Developer are Copyright (C) 2007
+ the Initial Developer. All Rights Reserved.
+
+ Please Contact Mike Botts <mike.botts@uah.edu> for more information.
  
  Contributor(s): 
     Alexandre Robin <robin@nsstc.uah.edu>
@@ -35,7 +40,7 @@ import java.util.Set;
  * */
 public class GetCapabilitiesRequest extends OWSRequest
 {
-    protected String section;
+    protected Set<String> sections;
     protected Set<String> acceptedVersions;
 	
     
@@ -43,21 +48,19 @@ public class GetCapabilitiesRequest extends OWSRequest
     {
         service = "OWS";
         operation = "GetCapabilities";
+        sections = new HashSet<>();
         acceptedVersions = new HashSet<String>();
     }
 
 
-	public String getSection()
-	{
-		return section;
-	}
+    public Set<String> getSections() {
+        return sections;
+    }
 
 
-	public void setSection(String section)
-	{
-		this.section = section;
-	}
-
+    public void setSections(Set<String> sections) {
+        this.sections = sections;
+    }
 
     public Set<String> getAcceptedVersions()
     {

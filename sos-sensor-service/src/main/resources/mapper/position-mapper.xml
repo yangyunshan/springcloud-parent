@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sensorweb.datacenter.dao.PositionMapper">
+    <sql id="insertFields">
+        position_name, position_longitude, position_latitude, position_altitude, procedure_id
+    </sql>
+
+    <sql id="selectFields">
+        procedure_id
+    </sql>
+
+    <insert id="insertData" parameterType="Position">
+        INSERT INTO position (<include refid="insertFields"></include>)
+        VALUES (#{name}, #{longitude}, #{latitude}, #{altitude}, #{procedureId})
+    </insert>
+
+    <delete id="deleteByProcedureId">
+        DELETE FROM position
+        WHERE procedure_id = #{procedureId}
+    </delete>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM position
+        WHERE position_id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="int" resultType="java.lang.String">
+        SELECT <include refid="selectFields"></include>
+        FROM position
+        WHERE position_id = #{id}
+    </select>
+
+    <select id="selectByName" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT <include refid="selectFields"></include>
+        FROM position
+        WHERE position_name like concat('%', #{name}, '%')
+    </select>
+
+    <select id="selectByEnvelope" resultType="java.lang.String">
+        SELECT <include refid="selectFields"></include>
+        FROM position
+        WHERE position_longitude <![CDATA[<=]]> #{maxLon} AND position_latitude <![CDATA[<=]]> #{maxLat} AND position_longitude <![CDATA[>=]]> #{minLon} AND position_latitude <![CDATA[>=]]> #{minLat}
+    </select>
+
+    <resultMap id="position" type="Position">
+        <id property="id" column="position_id"/>
+        <result property="name" column="position_name"/>
+        <result property="procedureId" column="procedure_id"/>
+        <result property="longitude" column="position_longitude"/>
+        <result property="latitude" column="position_latitude"/>
+        <result property="altitude" column="position_altitude"/>
+    </resultMap>
+
+</mapper>
