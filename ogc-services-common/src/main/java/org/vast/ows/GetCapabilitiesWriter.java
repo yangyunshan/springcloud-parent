@@ -11,7 +11,12 @@
  
  The Original Code is the "OGC Service Framework".
  
- The Initial Developer of the Original Code is the VAST team at the University of Alabama in Huntsville (UAH). <http://vast.uah.edu> Portions created by the Initial Developer are Copyright (C) 2007 the Initial Developer. All Rights Reserved. Please Contact Mike Botts <mike.botts@uah.edu> for more information.
+ The Initial Developer of the Original Code is the VAST team at the
+ University of Alabama in Huntsville (UAH). <http://vast.uah.edu>
+ Portions created by the Initial Developer are Copyright (C) 2007
+ the Initial Developer. All Rights Reserved.
+
+ Please Contact Mike Botts <mike.botts@uah.edu> for more information.
  
  Contributor(s): 
     Alexandre Robin <robin@nsstc.uah.edu>
@@ -60,8 +65,8 @@ public class GetCapabilitiesWriter extends AbstractRequestWriter<GetCapabilities
             
         urlBuff.append("&request=" + request.getOperation());
 		
-        if (request.getSection() != null)
-        	urlBuff.append("&section=" + request.getSection());
+        if (request.getSections() != null)
+        	urlBuff.append("&section=" + request.getSections());
         
         return urlBuff.toString();
 	}
@@ -87,9 +92,9 @@ public class GetCapabilitiesWriter extends AbstractRequestWriter<GetCapabilities
                 dom.setElementValue(rootElt, "+AcceptVersions", version);
         }
 		
-		if (request.getSection() != null)
-			dom.setElementValue(rootElt, "Sections", request.getSection());
-		
+		if (request.getSections() != null) {
+//			dom.setElementValue(rootElt, "Sections", request.getSections());
+        }
 		return rootElt;
 	}
 }

@@ -11,7 +11,12 @@
  
  The Original Code is the "OGC Service Framework".
  
- The Initial Developer of the Original Code is the VAST team at the University of Alabama in Huntsville (UAH). <http://vast.uah.edu> Portions created by the Initial Developer are Copyright (C) 2007 the Initial Developer. All Rights Reserved. Please Contact Mike Botts <mike.botts@uah.edu> for more information.
+ The Initial Developer of the Original Code is the VAST team at the
+ University of Alabama in Huntsville (UAH). <http://vast.uah.edu>
+ Portions created by the Initial Developer are Copyright (C) 2007
+ the Initial Developer. All Rights Reserved.
+
+ Please Contact Mike Botts <mike.botts@uah.edu> for more information.
  
  Contributor(s): 
     Alexandre Robin <robin@nsstc.uah.edu>
@@ -95,7 +100,7 @@ public class GetCapabilitiesReader extends AbstractRequestReader<GetCapabilities
             // section argument
             else if (argName.equalsIgnoreCase("section"))
             {
-                request.setSection(argValue);
+//                request.setSection(argValue);
             }
         }
 
@@ -114,8 +119,13 @@ public class GetCapabilitiesReader extends AbstractRequestReader<GetCapabilities
 		readCommonXML(dom, requestElt, request);
 		
 		// section
-		request.setSection(dom.getElementValue(requestElt, "section"));
-		
+//		request.setSection(dom.getElementValue(requestElt, "section"));
+		NodeList sectionList = dom.getElements(requestElt, "Sections/*");
+		for (int i = 0; i < sectionList.getLength(); i++) {
+			String val = dom.getElementValue((Element)sectionList.item(i));
+			request.getSections().add(val);
+		}
+
 		// accepted versions
         NodeList versionList = dom.getElements(requestElt, "acceptVersions");
         for (int i = 0; i < versionList.getLength(); i++)
