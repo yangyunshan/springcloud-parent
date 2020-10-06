@@ -17,28 +17,6 @@ import java.util.*;
 @Controller
 public class HomeController {
 
-    @RequestMapping(path = "index")
-    public String jump2Index() {
-        return "index";
-    }
-
-    @RequestMapping(path = "sensor")
-    public String jump2service() {
-        return "html/sensor";
-    }
-
-    @RequestMapping(path = "observation")
-    public String jump2Observation() {
-        return "html/observation";
-    }
-
-
-    @RequestMapping(path = "register")
-    public String jump2register() {
-        return "html/register";
-    }
-
-
     @Autowired
     private DescribeSensorExpandService describeSensorExpandService;
 

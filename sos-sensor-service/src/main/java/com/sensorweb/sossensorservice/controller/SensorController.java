@@ -5,22 +5,27 @@ import com.sensorweb.sossensorservice.service.sos.*;
 import com.sensorweb.sossensorservice.util.DataCenterConstant;
 import com.sensorweb.sossensorservice.util.DataCenterUtils;
 import com.sensorweb.sossensorservice.service.sos.GetObservationExpandService;
+import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.vast.ows.sos.InsertSensorRequest;
 import org.vast.xml.XMLReaderException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@Controller
+@Api
+@RestController
 @RequestMapping(path = "/sensor")
 public class SensorController implements DataCenterConstant {
 
@@ -36,52 +41,62 @@ public class SensorController implements DataCenterConstant {
     private static Logger LOGGER = LoggerFactory.getLogger(SensorController.class);
 
     /**
-     * 批量注册传感器/procedure
-     * @param model
+     * 通过SensorML文件批量注册传感器
      * @param files
      * @return
      * @throws Exception
      */
-    @RequestMapping(path = "/registry", method = RequestMethod.POST)
-    public String insertSensor(Model model, @RequestParam("files") MultipartFile[] files) throws Exception {
+    @Operation(summary = "通过SensorML文件批量注册传感器")
+    @PostMapping(path = "/registryByFiles")
+    public List<Map<String, String>> insertSensor(@Parameter(description = "SensorML文件") @RequestParam("files") MultipartFile[] files) throws Exception {
+        List<Map<String, String>> res = new ArrayList<>();
         if (files!=null && files.length>0) {
             for (int i=0; i< files.length; i++) {
+                Map<String, String> map = new HashMap<>();
                 MultipartFile file = files[i];
                 String temp = DataCenterUtils.readFromMultipartFile(file);
                 String content = temp.substring(temp.indexOf("<sml"));
                 InsertSensorRequest request = insertSensorService.getInsertSensorRequest(DataCenterConstant.INSERT_SENSOR_PREFIX + content + DataCenterConstant.INSERT_SENSOR_SUFFIX);
-                insertSensorService.insertSensor(request);
+                String flag = "";
+                try {
+                    flag = insertSensorService.insertSensor(request);
+                } catch (Exception e) {
+                    flag = "";
+                }
+                if (StringUtils.isBlank(flag)) {
+                    map.put(file.getName(), "failed");
+                } else {
+                    map.put(file.getName(),"success");
+                }
+                res.add(map);
             }
         }
-
-        return "html/register";
-    }
-
-    @RequestMapping(path = "/registryByContent", method = RequestMethod.POST)
-    public String insertSensorByContent(@RequestParam("xmlContent") String temp) throws Exception {
-        if (!StringUtils.isBlank(temp)) {
-            String content = temp.substring(temp.indexOf("<sml"));
-            InsertSensorRequest request = insertSensorService.getInsertSensorRequest(DataCenterConstant.INSERT_SENSOR_PREFIX + content + DataCenterConstant.INSERT_SENSOR_SUFFIX);
-            insertSensorService.insertSensor(request);
-        }
-
-        return "html/register";
+        return res;
     }
 
     /**
-     * 通过XML文档注册传感器，不支持批量
+     * 通过SensorML xml内容进行注册（非批量）
+     * @param temp
+     * @return
+     * @throws Exception
      */
-    @RequestMapping(path = "registryByXML", method = RequestMethod.POST)
-    public String insertSensor(Model model, String xmlContent) throws Exception {
-        if (!StringUtils.isBlank(xmlContent)) {
-            String content = xmlContent.substring(xmlContent.indexOf("<sml"));
-            InsertSensorRequest request = insertSensorService.getInsertSensorRequest(DataCenterConstant.INSERT_SENSOR_PREFIX + content + DataCenterConstant.INSERT_SENSOR_SUFFIX);
-            insertSensorService.insertSensor(request);
-            model.addAttribute("msg", "registry success");
-        } else {
-            model.addAttribute("msg", "registry failed");
+    @PostMapping(path = "/registryByContent")
+    public Map<String, String> insertSensorByContent(@Parameter(description = "SensorML xml内容") @RequestParam("xmlContent") String temp) throws Exception {
+        Map<String, String> res = new HashMap<>();
+        String content = temp.substring(temp.indexOf("<sml"));
+        InsertSensorRequest request = insertSensorService.getInsertSensorRequest(DataCenterConstant.INSERT_SENSOR_PREFIX + content + DataCenterConstant.INSERT_SENSOR_SUFFIX);
+        String flag;
+        try {
+            flag = insertSensorService.insertSensor(request);
+        } catch (Exception e) {
+            flag = "";
         }
-        return "index";
+        if (StringUtils.isBlank(flag)) {
+            res.put("status","failed");
+        } else {
+            res.put("status", "success");
+        }
+        return res;
     }
 
     /**
@@ -90,10 +105,9 @@ public class SensorController implements DataCenterConstant {
     @Autowired
     private DescribeSensorExpandService describeSensorExpandService;
 
-    @RequestMapping(path = "getAllProcedureInfo", method = RequestMethod.GET)
-    public String getAllProcedure(Model model) {
+    @GetMapping(path = "getAllProcedureInfo")
+    public String getAllProcedure() {
         String info = describeSensorExpandService.getTOC();
-        model.addAttribute("infos", info);
         return "html/sensor";
     }
 
