@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.datacenter.dao.FoiMapper">
+<mapper namespace="com.sensorweb.sosobsservice.dao.FoiMapper">
     <sql id="insertFields">
         feature_of_interest_id, feature_of_interest_name, feature_of_interest_description, geom, procedure_id
     </sql>

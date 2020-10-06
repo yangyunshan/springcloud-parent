@@ -26,7 +26,6 @@ import java.util.Map;
 
 @Api
 @RestController
-@RequestMapping(path = "/sensor")
 public class SensorController implements DataCenterConstant {
 
     @Autowired
@@ -105,9 +104,9 @@ public class SensorController implements DataCenterConstant {
     @Autowired
     private DescribeSensorExpandService describeSensorExpandService;
 
-    @GetMapping(path = "getAllProcedureInfo")
+    @GetMapping(path = "/getAllProcedureInfo")
     public String getAllProcedure() {
-        String info = describeSensorExpandService.getTOC();
+//        String info = describeSensorExpandService.getTOC();
         return "html/sensor";
     }
 

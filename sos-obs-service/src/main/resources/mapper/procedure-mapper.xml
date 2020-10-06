@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.datacenter.dao.ProcedureMapper">
+<mapper namespace="com.sensorweb.sosobsservice.dao.ProcedureMapper">
     <sql id="insertFields">
         procedure_id, procedure_name, procedure_description, description_format, isplatform, description_file
     </sql>

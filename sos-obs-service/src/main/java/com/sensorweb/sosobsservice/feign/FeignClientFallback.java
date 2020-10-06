@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FeignClientFallback implements FeignClientTest {
     @Override
-    public String getInfo(String name) {
+    public String getAllProcedure() {
         return "Sorry....";
     }
 }

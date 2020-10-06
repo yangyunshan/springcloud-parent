@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.datacenter.dao.ObservationMapper">
+<mapper namespace="com.sensorweb.sosobsservice.dao.ObservationMapper">
     <sql id="insertFields">
         observation_id, observation_description, observation_type, observation_time, procedure_id, feature_of_interest_id, observed_property, observation_value
     </sql>

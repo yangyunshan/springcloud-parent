@@ -25,7 +25,6 @@
         <module>eureka-server02</module>
         <module>eureka-server03</module>
         <module>config-server</module>
-        <module>config-client</module>
         <module>swe-common-core</module>
         <module>sensorml-core</module>
         <module>swe-common-om</module>

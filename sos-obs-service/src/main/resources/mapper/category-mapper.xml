@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.datacenter.dao.CategoryMapper">
+<mapper namespace="com.sensorweb.sosobsservice.dao.CategoryMapper">
     <sql id="insertFields">
         category_name, category_value, outid
     </sql>
