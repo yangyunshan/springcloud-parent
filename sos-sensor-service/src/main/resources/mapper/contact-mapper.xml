@@ -2,89 +2,68 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.datacenter.dao.ContactMapper">
+<mapper namespace="com.sensorweb.sossensorservice.dao.ContactMapper">
     <sql id="insertFields">
-        contact_title, contact_individualname, contact_positionname, contact_organizationname, contact_role, procedure_id
+        telephone, ind_name, pos_name, org_name, delivery_point, city, admin_area, postal_code, country, mail, proc_id
     </sql>
 
     <sql id="selectFields">
-        c.contact_id contact_id, c.procedure_id procedure_id, c.contact_title contact_title, c.contact_individualname contact_individualname, c.contact_positionname contact_positionname, c.contact_organizationname contact_organizationname, c.contact_role contact_role,
-        t.telephone_id telephone_id, t.procedure_id procedure_id, t.telephone_voice telephone_voice, t.telephone_facsimile telephone_facsimile,
-        a.address_id address_id, a.procedure_id procedure_id, a.address_deliverypoint address_deliverypoint, a.address_city address_city, a.address_administrativearea address_administrativearea, a.address_postalcode address_postalcode, a.address_country address_country, a.address_electronicmailaddress address_electronicmailaddress
+        id, telephone, ind_name, pos_name, org_name, delivery_point, city, admin_area, postal_code, country, mail, proc_id
     </sql>
 
-    <insert id="insertData" parameterType="Classification">
+    <insert id="insertData" parameterType="Contact">
         INSERT INTO contact (<include refid="insertFields"></include>)
-        VALUES (#{title}, #{individualName}, #{positionName}, #{organizationName}, #{role}, #{procedureId})
+        VALUES (#{telephone}, #{individualName}, #{positionName}, #{organizationName}, #{deliveryPoint}, #{city}, #{adminArea},
+        #{postalCode}, #{country}, #{mail}, #{procedureId})
     </insert>
 
     <delete id="deleteByProcedureId">
         DELETE FROM contact
-        WHERE procedure_id = #{procedureId}
+        WHERE proc_id = #{procedureId}
     </delete>
 
     <delete id="deleteById" parameterType="int">
         DELETE FROM contact
-        WHERE contact_id = #{id}
+        WHERE id = #{id}
     </delete>
 
-    <select id="selectById" parameterType="int" resultMap="contact">
+    <select id="selectByProcedureId" resultMap="contact">
         SELECT <include refid="selectFields"></include>
-        FROM (contact c JOIN telephone t ON c.procedure_id = t.procedure_id) JOIN address a ON a.procedure_id = c.procedure_id
-        WHERE c.contact_id = #{id}
+        FROM contact
+        WHERE proc_id = #{procedureId}
     </select>
 
-    <select id="selectByRole" resultMap="contact">
+    <select id="selectByIndividualName" resultMap="contact">
         SELECT <include refid="selectFields"></include>
-        FROM (contact c JOIN telephone t ON c.procedure_id = t.procedure_id) JOIN address a ON a.procedure_id = c.procedure_id
-        WHERE c.contact_role = #{role}
+        FROM contact
+        WHERE ind_name like concat('%', #{individualName}, '%')
     </select>
 
-    <select id="selectByIndividualName" resultType="java.lang.String">
-        SELECT procedure_id
+    <select id="selectByOrganizationName" resultMap="contact">
+        SELECT <include refid="selectFields"></include>
         FROM contact
-        WHERE
-        contact_individualname like concat('%', #{individualName}, '%')
+        WHERE org_name like concat('%', #{organizationName}, '%')
     </select>
 
-    <select id="selectByOrganizationName" resultType="java.lang.String">
-        SELECT procedure_id
+    <select id="selectByPositionName" resultMap="contact">
+        SELECT <include refid="selectFields"></include>
         FROM contact
-        WHERE
-        contact_organizationname like concat('%', #{organizationName}, '%')
-    </select>
-
-    <select id="selectByPositionName" resultType="java.lang.String">
-        SELECT procedure_id
-        FROM contact
-        WHERE
-        contact_positionname like concat('%', #{positionName}, '%');
+        WHERE pos_name like concat('%', #{positionName}, '%');
     </select>
 
     <resultMap id="contact" type="Contact">
-        <id property="id" column="contact_id"/>
-        <result property="procedureId" column="procedure_id"/>
-        <result property="title" column="contact_title"/>
-        <result property="individualName" column="contact_individualname"/>
-        <result property="positionName" column="contact_positionname"/>
-        <result property="organizationName" column="contact_organizationname"/>
-        <result property="role" column="contact_role"/>
-        <association property="telephone">
-            <id property="id" column="telephone_id"/>
-            <result property="procedureId" column="procedure_id"/>
-            <result property="voice" column="telephone_voice"/>
-            <result property="facsimile" column="telephone_facsimile"/>
-        </association>
-        <association property="address">
-            <id property="id" column="address_id"/>
-            <result property="procedureId" column="procedure_id"/>
-            <result property="deliveryPoint" column="address_deliverypoint"/>
-            <result property="city" column="address_city"/>
-            <result property="administrativeArea" column="address_administrativearea"/>
-            <result property="postalCode" column="address_postalCode"/>
-            <result property="country" column="address_country"/>
-            <result property="electronicMailAddress" column="address_electronicmailaddress"/>
-        </association>
+        <id property="id" column="id"/>
+        <result property="telephone" column="telephone"/>
+        <result property="individualName" column="ind_name"/>
+        <result property="positionName" column="pos_name"/>
+        <result property="organizationName" column="org_name"/>
+        <result property="deliveryPoint" column="delivery_point"/>
+        <result property="city" column="city"/>
+        <result property="adminArea" column="admin_area"/>
+        <result property="postalCode" column="postal_code"/>
+        <result property="country" column="country"/>
+        <result property="mail" column="mail"/>
+        <result property="procedureId" column="proc_id"/>
     </resultMap>
 
 </mapper>

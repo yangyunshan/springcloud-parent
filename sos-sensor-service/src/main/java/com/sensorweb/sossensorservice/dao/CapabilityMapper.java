@@ -1,6 +1,6 @@
 package com.sensorweb.sossensorservice.dao;
 
-import com.sensorweb.sossensorservice.entity.sos.Capability;
+import com.sensorweb.sossensorservice.entity.Capability;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +14,6 @@ public interface CapabilityMapper {
     int deleteById(int id);
     int deleteByProcedureId(String procedureId);
 
-    Capability selectById(int id);
+    List<Capability> selectByProcedureId(String procedureId);
     List<Capability> selectByName(String name);
 }

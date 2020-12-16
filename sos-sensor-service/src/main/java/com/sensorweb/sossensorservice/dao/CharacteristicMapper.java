@@ -1,6 +1,6 @@
 package com.sensorweb.sossensorservice.dao;
 
-import com.sensorweb.sossensorservice.entity.sos.Characteristic;
+import com.sensorweb.sossensorservice.entity.Characteristic;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +14,6 @@ public interface CharacteristicMapper {
     int deleteById(int id);
     int deleteByProcedureId(String procedureId);
 
-    Characteristic selectById(int id);
+    List<Characteristic> selectByProcedureId(String procedureId);
     List<Characteristic> selectByName(String name);
 }

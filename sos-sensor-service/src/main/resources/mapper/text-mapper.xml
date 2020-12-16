@@ -2,41 +2,47 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.datacenter.dao.TextMapper">
+<mapper namespace="com.sensorweb.sossensorservice.dao.TextMapper">
     <sql id="insertFields">
-        text_name, text_value, outid
+        text_name, text_value, out_id
     </sql>
 
     <sql id="selectFields">
-       text_id, text_name, text_value, outid
+       id, text_name, text_value, out_id
     </sql>
 
     <insert id="insertData" parameterType="Text">
-        INSERT INTO _text (<include refid="insertFields"></include>)
+        INSERT INTO swe_text (<include refid="insertFields"></include>)
         VALUES (#{name}, #{value}, #{outId})
     </insert>
 
     <delete id="deleteByOutId">
-        DELETE FROM _text
-        WHERE outid = #{outId}
+        DELETE FROM swe_text
+        WHERE out_id = #{outId}
     </delete>
 
     <delete id="deleteById" parameterType="int">
-        DELETE FROM _text
-        WHERE text_id = #{id}
+        DELETE FROM swe_text
+        WHERE id = #{id}
     </delete>
 
+    <select id="selectByOutId" resultMap="text">
+        SELECT <include refid="selectFields"></include>
+        FROM swe_text
+        WHERE out_id = #{outId}
+    </select>
+
     <select id="selectByNameAndValue" resultType="java.lang.String">
-        SELECT outid
-        FROM _text
+        SELECT <include refid="selectFields"></include>
+        FROM swe_text
         WHERE text_name = #{name} AND text_value = #{value}
     </select>
 
     <resultMap id="text" type="Text">
-        <id property="id" column="text_id"/>
+        <id property="id" column="id"/>
         <result property="name" column="text_name"/>
         <result property="value" column="text_value"/>
-        <result property="outId" column="outid"/>
+        <result property="outId" column="out_id"/>
     </resultMap>
 
 </mapper>

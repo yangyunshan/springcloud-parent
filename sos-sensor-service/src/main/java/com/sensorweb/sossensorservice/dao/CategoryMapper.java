@@ -1,6 +1,6 @@
 package com.sensorweb.sossensorservice.dao;
 
-import com.sensorweb.sossensorservice.entity.sos.Category;
+import com.sensorweb.sossensorservice.entity.Category;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -15,5 +15,6 @@ public interface CategoryMapper {
     int deleteById(int id);
     int deleteByOutId(String outId);
 
+    List<Category> selectByOutId(String outId);
     List<String> selectByNameAndValue(@Param("name") String name, @Param("value") String value);
 }

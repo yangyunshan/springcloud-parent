@@ -2,67 +2,60 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.datacenter.dao.ProcedureMapper">
+<mapper namespace="com.sensorweb.sossensorservice.dao.ProcedureMapper">
     <sql id="insertFields">
-        procedure_id, procedure_name, procedure_description, description_format, isplatform, description_file
+        proc_id, proc_name, proc_des, is_platform, file_path
     </sql>
 
     <sql id="selectFields">
-        procedure_id, procedure_name, procedure_description, description_format, isplatform, description_file
+        id, proc_id, proc_name, proc_des, is_platform, file_path
     </sql>
 
     <insert id="insertData" parameterType="Procedure">
         INSERT INTO procedure (<include refid="insertFields"></include>)
-        VALUES (#{id}, #{name}, #{description}, #{descriptionFormat}, #{isPlatform}, #{descriptionFile})
+        VALUES (#{id}, #{name}, #{description}, #{isPlatform}, #{descriptionFile})
     </insert>
 
     <delete id="deleteById" parameterType="java.lang.String">
         DELETE FROM procedure
-        WHERE procedure_id = #{id}
+        WHERE proc_id = #{id}
     </delete>
 
     <select id="selectById" parameterType="java.lang.String" resultMap="procedure">
         SELECT <include refid="selectFields"></include>
         FROM procedure
-        WHERE procedure_id = #{id}
+        WHERE proc_id = #{id}
     </select>
 
-    <select id="selectByIdAndFormat" parameterType="java.lang.String" resultMap="procedure">
-        SELECT <include refid="selectFields"></include>
-        FROM procedure
-        WHERE procedure_id = #{id} AND description_format = #{descriptionFormat}
-    </select>
-
-    <select id="selectAll" resultType="java.lang.String">
-        SELECT procedure_id
+    <select id="selectAllProcedureIds" resultType="java.lang.String">
+        SELECT proc_id
         FROM procedure
     </select>
 
     <select id="selectAllSensorIds" resultType="java.lang.String">
-        SELECT procedure_id
+        SELECT proc_id
         FROM procedure
-        WHERE isplatform = 0
+        WHERE is_platform = 0
     </select>
 
     <select id="selectAllPlatformIds" resultType="java.lang.String">
-        SELECT procedure_id
+        SELECT proc_id
         FROM procedure
-        WHERE isplatform = 1
+        WHERE is_platform = 1
     </select>
 
     <select id="isExist" resultType="java.lang.Boolean">
-        SELECT count(procedure_id)
+        SELECT count(proc_id)
         FROM procedure
-        WHERE procedure_id = #{procedureId}
+        WHERE proc_id = #{procedureId}
     </select>
 
     <resultMap id="procedure" type="Procedure">
-        <id property="id" column="procedure_id"/>
-        <result property="name" column="procedure_name"/>
-        <result property="description" column="procedure_description"/>
-        <result property="descriptionFormat" column="description_format"/>
-        <result property="isPlatform" column="isplatform"/>
-        <result property="descriptionFile" column="description_file"/>
+        <id property="id" column="proc_id"/>
+        <result property="name" column="proc_name"/>
+        <result property="description" column="proc_des"/>
+        <result property="isPlatform" column="is_platform"/>
+        <result property="descriptionFile" column="file_path"/>
     </resultMap>
 
 </mapper>

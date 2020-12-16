@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sensorweb.datacenterairservice.dao.AirQualityHourMapper">
+    <sql id="insertFields">
+        station_name, uniquecode, querytime, pm25OneHour, pm10OneHour, so2OneHour, no2OneHour, coOneHour, o3OneHour, aqi, primaryEP, aqDegree, aqType
+    </sql>
+
+    <sql id="selectFields">
+        id, station_name, uniquecode, querytime, pm25OneHour, pm10OneHour, so2OneHour, no2OneHour, coOneHour, o3OneHour, aqi, primaryEP, aqDegree, aqType
+    </sql>
+
+    <insert id="insertData" parameterType="Observation" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO air_quality_hourly (<include refid="insertFields"></include>)
+        VALUES (#{stationName}, #{uniqueCode}, #{queryTime}, #{pm25OneHour}, #{pm10OneHour}, #{so2OneHour}, #{no2OneHour}, #{coOneHour}, #{o3OneHour}, #{aqi}, #{primaryEP}, #{aqDegree}, #{aqType});
+    </insert>
+
+    <select id="selectById" resultMap="airQualityHour">
+        SELECT <include refid="selectFields"></include>
+        FROM air_quality_hourly
+        WHERE id = #{id}
+    </select>
+
+    <resultMap id="airQualityHour" type="AirQualityHour">
+        <id column="id" property="id"/>
+        <result column="uniquecode" property="uniqueCode"/>
+        <result column="station_name" property="stationName"/>
+        <result column="querytime" property="queryTime"/>
+        <result column="pm25OneHour" property="pm25OneHour"/>
+        <result column="pm10OneHour" property="pm10OneHour"/>
+        <result column="so2OneHour" property="so2OneHour"/>
+        <result column="no2OneHour" property="no2OneHour"/>
+        <result column="coOneHour" property="coOneHour"/>
+        <result column="o3OneHour" property="o3OneHour"/>
+        <result column="aqi" property="aqi"/>
+        <result column="primaryEP" property="primaryEP"/>
+        <result column="aqDegree" property="aqDegree"/>
+        <result column="aqType" property="aqType"/>
+    </resultMap>
+
+</mapper>

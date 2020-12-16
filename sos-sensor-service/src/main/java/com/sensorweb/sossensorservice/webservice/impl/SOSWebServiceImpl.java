@@ -1,9 +1,9 @@
 package com.sensorweb.sossensorservice.webservice.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.sensorweb.sossensorservice.entity.sos.Observation;
-import com.sensorweb.sossensorservice.service.sos.*;
-import com.sensorweb.sossensorservice.util.DataCenterUtils;
+import com.sensorweb.datacenterutil.utils.DataCenterUtils;
+import com.sensorweb.sossensorservice.entity.Platform;
+import com.sensorweb.sossensorservice.service.*;
 import com.sensorweb.sossensorservice.webservice.SOSWebservice;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +29,7 @@ public class SOSWebServiceImpl implements SOSWebservice {
     private DescribeSensorService describeSensorService;
 
     @Autowired
-    private InsertObservationService insertObservationService;
-
-    @Autowired
-    private GetObservationService getObservationService;
+    private DescribeSensorExpandService expandService;
 
 
     @Override
@@ -43,7 +40,6 @@ public class SOSWebServiceImpl implements SOSWebservice {
             InsertSensorRequest request = insertSensorService.getInsertSensorRequest(requestContent);
             String result = insertSensorService.insertSensor(request);
             if (!StringUtils.isBlank(result)) {
-                response.setAssignedProcedureId("");
                 response.setAssignedProcedureId(result);
                 InsertSensorResponseWriterV20 responseWriter = new InsertSensorResponseWriterV20();
                 DOMHelper domHelper = new DOMHelper();
@@ -64,8 +60,8 @@ public class SOSWebServiceImpl implements SOSWebservice {
         try {
             DescribeSensorRequest request = describeSensorService.getDescribeSensorRequest(requestContent);
             String procedureId = describeSensorService.getProcedureId(request);
-            String descriptionFormat = describeSensorService.getDescriptionFormat(request);
-            str = describeSensorService.getDescribeSensorResponse(procedureId, descriptionFormat);
+//            String descriptionFormat = describeSensorService.getDescriptionFormat(request);
+            str = describeSensorService.getDescribeSensorResponse(procedureId);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,37 +69,6 @@ public class SOSWebServiceImpl implements SOSWebservice {
         return str;
     }
 
-    @Override
-    public String InsertObservation(String requestContent) {
-
-        return "str";
-    }
-
-    @Override
-    public String GetObservation(String requestContent) {
-        try {
-            GetObservationRequest request = getObservationService.getObservationRequest(requestContent);
-            List<Observation> observations = getObservationService.getObservationContent(request);
-            GetObservationResponse response = new GetObservationResponse();
-            if (observations!=null && observations.size()>0) {
-                for (Observation observation : observations) {
-                    getObservationService.getObservationResponse(observation.getValue(), response);
-                }
-            }
-            DOMHelper domHelper = new DOMHelper();
-            GetObservationResponseWriter writer = new GetObservationResponseWriter();
-            Element element = writer.buildXMLResponse(domHelper, response, "2.0");
-            String test = DataCenterUtils.element2String(element);
-            return DataCenterUtils.element2String(element);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    @Autowired
-    private DescribeSensorExpandService expandService;
     /**
      * 根据查询条件查询procedure
      *
@@ -112,7 +77,8 @@ public class SOSWebServiceImpl implements SOSWebservice {
      */
     @Override
     public String SearchSensor(String condition) {
-        return expandService.searchSensor(condition);
+//        return expandService.searchSensor(condition);
+        return "";
     }
 
     /**
@@ -123,7 +89,7 @@ public class SOSWebServiceImpl implements SOSWebservice {
      */
     @Override
     public String isExist(String procedureId) {
-        return expandService.isExist(procedureId);
+        return expandService.isExist(procedureId) ? "true":"false";
     }
 
     /**
@@ -134,7 +100,7 @@ public class SOSWebServiceImpl implements SOSWebservice {
      */
     @Override
     public String getXMLContent(String filePath) {
-        return expandService.getSensorContentById(filePath);
+        return expandService.getProcedureContentById(filePath);
     }
 
     /**
@@ -145,8 +111,8 @@ public class SOSWebServiceImpl implements SOSWebservice {
      */
     @Override
     public String getComponent(String platformId) {
-        List<String> componentIds = expandService.getComponentByPlatformId(platformId);
-        return JSONObject.toJSONString(expandService.getSensorByIds(componentIds));
+        Platform platform = expandService.getPlatformInfoById(platformId);
+        return JSONObject.toJSONString(platform);
     }
 
     /**
@@ -156,7 +122,7 @@ public class SOSWebServiceImpl implements SOSWebservice {
      */
     @Override
     public String getTOC() {
-        return expandService.getTOC();
+        return JSONObject.toJSONString(expandService.getTOC());
     }
 
 

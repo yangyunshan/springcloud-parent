@@ -1,8 +1,7 @@
 package com.sensorweb.sosobsservice.service;
 
-import com.sensorweb.sosobsservice.dao.FoiMapper;
 import com.sensorweb.sosobsservice.dao.ObservationMapper;
-import com.sensorweb.sosobsservice.entity.sos.Observation;
+import com.sensorweb.sosobsservice.entity.Observation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,15 +28,6 @@ public class GetObservationService {
     @Autowired
     private ObservationMapper observationMapper;
 
-    @Autowired
-    private FoiMapper foiMapper;
-
-//    @Autowired
-//    private DescribeSensorExpandService describeSensorExpandService;
-
-//    @Autowired
-//    private DeleteSensorService deleteSensorService;
-
     /**
      * 根据查询获得的O&M数据内容，封装成Response，并以Element的形式返回
      * @param omContent
@@ -59,26 +49,26 @@ public class GetObservationService {
      * @param request
      * @return
      */
-//    public List<Observation> getObservationContent(GetObservationRequest request) {
-//        List<Observation> result = new ArrayList<>();
-//
-//        Set<String> procedureIds = getProcedureId(request);
-//        Set<String> observedProperties = getObservable(request);
-//        Set<String> fois = getFoi(request);
-//        Instant[] temporal = getTemporalFilter(request);
-//        double[] spatial = getSpatialFilter(request);
-//
-//        Iterator<String> iterator = procedureIds.iterator();
-//        if (iterator.hasNext()) {
-//            String procedureId = iterator.next();
-//            //如果id是平台的情况，查询平台下的所有传感器数据
-//            if (deleteSensorService.isPlatform(procedureId)) {
+    public List<Observation> getObservationContent(GetObservationRequest request) {
+        List<Observation> result = new ArrayList<>();
+
+        Set<String> procedureIds = getProcedureId(request);
+        Set<String> observedProperties = getObservable(request);
+        Set<String> fois = getFoi(request);
+        Instant[] temporal = getTemporalFilter(request);
+        double[] spatial = getSpatialFilter(request);
+
+        Iterator<String> iterator = procedureIds.iterator();
+        if (iterator.hasNext()) {
+            String procedureId = iterator.next();
+            //如果id是平台的情况，查询平台下的所有传感器数据
+//            if (describeSensorExpandService.isPlatform(procedureId)) {
 //                List<String> sensorIds = describeSensorExpandService.getComponentByPlatformId(procedureId);
 //                Set<String> ids = new HashSet<>(sensorIds);
-//                //获得满足procedureId、observedProperties、foi、temporal条件的observation
+                //获得满足procedureId、observedProperties、foi、temporal条件的observation
 //                List<Observation> temp = observationMapper.selectObservationsByConditions(ids, observedProperties,
 //                temporal[0], temporal[1]);
-//
+
 //                result.addAll(temp);
 //            } else {
 //                Set<String> ids = new HashSet<>();
@@ -87,11 +77,11 @@ public class GetObservationService {
 //                        temporal[0], temporal[1]);
 //                result.addAll(temp);
 //            }
-//        }
-//
-//
-//        return result;
-//    }
+        }
+
+
+        return result;
+    }
 
     /**
      * 解析GetObservation请求字符串，得到GetObservationRequest对象，并返回

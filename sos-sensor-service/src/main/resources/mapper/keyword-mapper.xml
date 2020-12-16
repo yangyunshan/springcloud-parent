@@ -2,13 +2,13 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.datacenter.dao.KeywordMapper">
+<mapper namespace="com.sensorweb.sossensorservice.dao.KeywordMapper">
     <sql id="insertFields">
-        keyword_value, procedure_id
+        k_value, proc_id
     </sql>
 
     <sql id="selectFields">
-        procedure_id
+        id, k_value, proc_id
     </sql>
 
     <insert id="insertData" parameterType="Keyword">
@@ -21,24 +21,24 @@
 
     <delete id="deleteByProcedureId">
         DELETE FROM keyword
-        WHERE procedure_id = #{procedureId}
+        WHERE proc_id = #{procedureId}
     </delete>
 
     <delete id="deleteById" parameterType="int">
         DELETE FROM keyword
-        WHERE keyword_id = #{id}
+        WHERE id = #{id}
     </delete>
 
-    <select id="selectById" parameterType="int" resultType="java.lang.String">
-        SELECT <include refid="selectFields"></include>
+    <select id="selectByProcedureId" resultType="java.lang.String">
+        SELECT k_value
         FROM keyword
-        WHERE keyword_id = #{id}
+        WHERE proc_id = #{procedure_id}
     </select>
 
     <select id="selectByValue" resultType="java.lang.String">
-        SELECT <include refid="selectFields"></include>
+        SELECT proc_id
         FROM keyword
-        WHERE keyword_value like concat('%',#{value}, '%')
+        WHERE k_value like concat('%',#{value}, '%')
     </select>
 
 </mapper>

@@ -12,12 +12,6 @@ public interface SOSWebservice {
     @WebMethod
     String DescribeSensor(@WebParam(name = "request") String requestContent);
 
-    @WebMethod
-    String InsertObservation(@WebParam(name = "request") String requestContent);
-
-    @WebMethod
-    String GetObservation(@WebParam(name = "request") String requestContent);
-
     /**
      * 根据查询条件查询procedure
      * @param condition

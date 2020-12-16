@@ -36,7 +36,7 @@ public class Swagger3Configuration {
         return new ApiInfoBuilder()
                 .title("Swagger3接口文档")
                 .description("数据注册中心的相关接口文档")
-                .termsOfServiceUrl("http://localhost:8080/hello")
+//                .termsOfServiceUrl("http://localhost:8082/hello")
                 .version("1.0")
                 .build();
     }

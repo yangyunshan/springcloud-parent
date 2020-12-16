@@ -1,7 +1,7 @@
 package com.sensorweb.sossensorservice.controller;
 
-import com.sensorweb.sossensorservice.service.sos.GetCapabilitiesService;
-import com.sensorweb.sossensorservice.util.DataCenterUtils;
+import com.sensorweb.datacenterutil.utils.DataCenterUtils;
+import com.sensorweb.sossensorservice.service.GetCapabilitiesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

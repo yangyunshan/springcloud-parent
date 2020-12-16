@@ -1,19 +1,16 @@
 package com.sensorweb.sosobsservice.service;
 
-import com.sensorweb.sosobsservice.dao.FoiMapper;
+import com.sensorweb.datacenterutil.utils.DataCenterUtils;
 import com.sensorweb.sosobsservice.dao.ObservationMapper;
-import com.sensorweb.sosobsservice.dao.ProcedureMapper;
-import com.sensorweb.sosobsservice.entity.sos.FeatureOfInterest;
-import com.sensorweb.sosobsservice.entity.sos.Observation;
-import com.sensorweb.sosobsservice.util.DataCenterUtils;
+import com.sensorweb.sosobsservice.entity.Observation;
+import com.sensorweb.sosobsservice.feign.SensorFeignClient;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.vast.ogc.gml.FeatureRef;
-import org.vast.ogc.gml.IGeoFeature;
 import org.vast.ogc.om.IObservation;
 import org.vast.ogc.om.OMUtils;
 import org.vast.ows.OWSException;
@@ -30,17 +27,15 @@ import java.io.ByteArrayInputStream;
 import java.text.ParseException;
 import java.util.List;
 
+@Slf4j
 @Service
 public class InsertObservationService {
-
-    @Autowired
-    private FoiMapper foiMapper;
 
     @Autowired
     private ObservationMapper observationMapper;
 
     @Autowired
-    private ProcedureMapper procedureMapper;
+    private SensorFeignClient sensorFeignClient;
 
     /**
      * 根据返回的插入成功的观测id，自动生成InsertObservationResponse
@@ -66,17 +61,14 @@ public class InsertObservationService {
     @Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void insertObservation(IObservation iObservation) throws Exception {
         Observation observation = getObservation(iObservation);
-        FeatureOfInterest fois = getFoi(iObservation);
 
-        //将FOI数据写入数据库
-        if (!foiMapper.isExist(fois.getId())) {
-            foiMapper.insertData(fois);
-        }
         //插入观测数据
-        if (procedureMapper.isExist(observation.getProcedureId())) {
-            observationMapper.insertData(observation);
+        if (sensorFeignClient.isExist(observation.getProcedureId())) {
+//            observationMapper.insertData(observation);
+            //OM注册逻辑徐修改
         } else {
-            throw new Exception("This procedure is not exsit");
+            log.info("This procedure is not exist");
+            throw new Exception("This procedure is not exist");
         }
 
     }
@@ -126,49 +118,28 @@ public class InsertObservationService {
     }
 
     /**
-     * 解析IObservation对象，获取该Observation中的FeatureOfInterest
-     * @param
-     * @return
-     */
-    public FeatureOfInterest getFoi(IObservation iObservation) {
-        FeatureOfInterest foi = new FeatureOfInterest();
-        if (iObservation!=null) {
-            IGeoFeature geoFeature = iObservation.getFeatureOfInterest();
-            if (geoFeature!=null) {
-                if (geoFeature instanceof FeatureRef) {
-                    foi.setName(((FeatureRef) geoFeature).getHref());
-                    foi.setId(foi.getName());
-                    foi.setProcedureId(iObservation.getProcedure().getUniqueIdentifier());
-                } else {
-                    foi.setId(geoFeature.getUniqueIdentifier());
-                    foi.setName(geoFeature.getName());
-                    foi.setDescription(geoFeature.getDescription());
-                    foi.setGeom(geoFeature.getGeometry()!=null ? geoFeature.getGeometry().toString():null);
-                    foi.setProcedureId(iObservation.getProcedure().getUniqueIdentifier());
-                }
-            }
-        }
-        return foi;
-    }
-
-    /**
      * 解析IObservation对象，获取观测结果
      * @param iObservation
      * @return
      * @throws ParseException
      */
-    public Observation getObservation(IObservation iObservation) throws ParseException, XMLWriterException {
+    public Observation getObservation(IObservation iObservation) {
         Observation observation = new Observation();
         if (iObservation!=null) {
-            observation.setOutId(iObservation.getUniqueIdentifier());
             observation.setDescription(iObservation.getDescription());
-            observation.setFoiId(iObservation.getFeatureOfInterest().getUniqueIdentifier());
             observation.setProcedureId(iObservation.getProcedure().getUniqueIdentifier());
-            observation.setTime(iObservation.getResultTime());
-            observation.setValue(getOM(iObservation));
-            observation.setObservedProperty(iObservation.getObservedProperty().getHref());
+            observation.setObsTime(iObservation.getResultTime());
+            observation.setObsProperty(iObservation.getObservedProperty().getHref());
             observation.setType(iObservation.getType());
         }
         return observation;
+    }
+
+    /**
+     * 插入自定义Observation对象数据
+     */
+    public boolean insertObservationData(Observation observation) {
+        int status = observationMapper.insertData(observation);
+        return status>0;
     }
 }

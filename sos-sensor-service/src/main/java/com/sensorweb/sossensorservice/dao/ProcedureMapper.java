@@ -1,8 +1,7 @@
 package com.sensorweb.sossensorservice.dao;
 
-import com.sensorweb.sossensorservice.entity.sos.Procedure;
+import com.sensorweb.sossensorservice.entity.Procedure;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,8 +14,7 @@ public interface ProcedureMapper {
     int deleteById(String id);
 
     Procedure selectById(String id);
-    Procedure selectByIdAndFormat(@Param("id") String id, @Param("descriptionFormat") String descriptionFormat);
-    List<String> selectAll();
+    List<String> selectAllProcedureIds();
     List<String> selectAllSensorIds();
     List<String> selectAllPlatformIds();
 

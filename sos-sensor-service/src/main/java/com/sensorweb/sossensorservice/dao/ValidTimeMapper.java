@@ -1,6 +1,6 @@
 package com.sensorweb.sossensorservice.dao;
 
-import com.sensorweb.sossensorservice.entity.sos.ValidTime;
+import com.sensorweb.sossensorservice.entity.ValidTime;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -16,8 +16,6 @@ public interface ValidTimeMapper {
     int deleteById(int id);
     int deleteByProcedureId(String procedureId);
 
-    String selectById(int id);
-    List<String> selectByTime(@Param("begin") Instant beginTime, @Param("end") Instant endTime);
-    List<String> selectByBeginTime(Instant begin);
-    List<String> selectByEndTime(Instant end);
+    ValidTime selectByProcedureId(String procedureId);
+    List<ValidTime> selectByTime(@Param("begin") Instant beginTime, @Param("end") Instant endTime);
 }

@@ -1,6 +1,6 @@
 package com.sensorweb.sossensorservice.dao;
 
-import com.sensorweb.sossensorservice.entity.sos.Component;
+import com.sensorweb.sossensorservice.entity.Component;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 

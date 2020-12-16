@@ -2,49 +2,55 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.datacenter.dao.VectorMapper">
+<mapper namespace="com.sensorweb.sossensorservice.dao.VectorMapper">
     <sql id="insertFields">
-        vector_name, longitude, latitude, altitude, outid
+        vec_name, lon, lat, alt, geom, out_id
     </sql>
 
     <sql id="selectFields">
-       vector_id, vector_name, longitude, latitude, altitude, outid
+       id, vec_name, lon, lat, alt, out_id
     </sql>
 
     <insert id="insertData" parameterType="Vector">
-        INSERT INTO vector (<include refid="insertFields"></include>)
-        VALUES (#{name}, #{longitude}, #{latitude}, #{altitude}, #{outId})
+        INSERT INTO swe_vector (<include refid="insertFields"></include>)
+        VALUES (#{name}, #{longitude}, #{latitude}, #{altitude}, ST_GeomFromText(#{wkt}, 4326), #{outId})
     </insert>
 
     <delete id="deleteByOutId">
-        DELETE FROM vector
-        WHERE outid = #{outId}
+        DELETE FROM swe_vector
+        WHERE out_id = #{outId}
     </delete>
 
     <delete id="deleteById" parameterType="int">
-        DELETE FROM vector
-        WHERE vector_id = #{id}
+        DELETE FROM swe_vector
+        WHERE id = #{id}
     </delete>
 
+    <select id="selectByOutId" resultMap="vector">
+        SELECT <include refid="selectFields"></include>
+        FROM swe_vector
+        WHERE out_id = #{outId}
+    </select>
+
     <select id="selectByLowerCorner" resultType="java.lang.String">
-        SELECT outid
-        FROM vector
-        WHERE latitude <![CDATA[>=]]> #{lat} AND longitude <![CDATA[>=]]> #{lon} AND vector_name = 'Low'
+        SELECT out_id
+        FROM swe_vector
+        WHERE lat <![CDATA[>=]]> #{lat} AND lon <![CDATA[>=]]> #{lon} AND vec_name = 'Low'
     </select>
 
     <select id="selectByUpperCorner" resultType="java.lang.String">
-        SELECT outid
-        FROM vector
-        WHERE latitude <![CDATA[<=]]> #{lat} AND longitude <![CDATA[<=]]> #{lon} AND vector_name = 'up'
+        SELECT out_id
+        FROM swe_vector
+        WHERE lat <![CDATA[<=]]> #{lat} AND lon <![CDATA[<=]]> #{lon} AND vec_name = 'up'
     </select>
 
     <resultMap id="vector" type="Vector">
-        <id property="id" column="vector_id"/>
-        <result property="name" column="vector_name"/>
-        <result property="longitude" column="longitude"/>
-        <result property="latitude" column="latitude"/>
-        <result property="altitude" column="altitude"/>
-        <result property="outId" column="outid"/>
+        <id property="id" column="id"/>
+        <result property="name" column="vec_name"/>
+        <result property="longitude" column="lon"/>
+        <result property="latitude" column="lat"/>
+        <result property="altitude" column="alt"/>
+        <result property="outId" column="out_id"/>
     </resultMap>
 
 </mapper>

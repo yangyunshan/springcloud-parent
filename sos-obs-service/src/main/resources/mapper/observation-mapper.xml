@@ -2,72 +2,79 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.sosobsservice.dao.ObservationMapper">
+<mapper namespace="com.sensorweb.sossensorservice.dao.ObservationMapper">
     <sql id="insertFields">
-        observation_id, observation_description, observation_type, observation_time, procedure_id, feature_of_interest_id, observed_property, observation_value
+        proc_id, obs_name, obs_des, obs_time, begin_time, end_time, bbox, geom, obs_property, obs_type, mapping, out_id
     </sql>
 
     <sql id="selectFields">
-        id, observation_id, observation_description, observation_type, observation_time, procedure_id, feature_of_interest_id, observed_property, observation_value
+        id, proc_id, obs_name, obs_des, obs_time, begin_time, end_time, bbox, obs_property, obs_type, mapping, out_id
     </sql>
 
     <insert id="insertData" parameterType="Observation">
         INSERT INTO observation (<include refid="insertFields"></include>)
-        VALUES (#{outId}, #{description}, #{type}, #{time}, #{procedureId}, #{foiId}, #{observedProperty}, #{value})
+        VALUES (#{procedureId}, #{name}, #{description}, #{obsTime}, #{beginTime}, #{endTime}, #{bbox}, ST_GeomFromText(#{wkt}, 4326), #{obsProperty}, #{type}, #{mapping}, #{outId})
     </insert>
 
     <delete id="deleteByProcedureId">
         DELETE FROM observation
-        WHERE procedure_id = #{procedureId}
+        WHERE proc_id = #{procedureId}
     </delete>
 
-    <select id="selectObservationsByConditions" resultMap="observation">
+    <select id="selectAll" resultMap="observation">
         SELECT <include refid="selectFields"></include>
         FROM observation
-        WHERE 1 = 1
-        <if test="procedureIds!=null">
-            <foreach collection="procedureIds" item="procedureId" open="and procedure_id IN(" close=")" separator=",">
-                #{procedureId}
-            </foreach>
-        </if>
-        <if test="observedProperties!=null">
-            <foreach collection="observedProperties" item="observedProperty" open="and observed_property IN(" close=")" separator=",">
-                #{observedProperty}
-            </foreach>
-        </if>
-        <if test="begin!=null and end!=null">
-            and observation_time between #{begin} and #{end}
-        </if>
     </select>
 
-    <select id="selectObservationsByDateTime" resultType="int">
-        SELECT count(*)
-        FROM observation
-        WHERE 1 = 1
-        <if test="begin!=null and end!=null">
-            and observation_time between #{begin} and #{end}
-        </if>
-    </select>
-
-    <select id="selectObservationsBySensorId" resultMap="observation">
+    <select id="selectByProcedureId" resultMap="observation">
         SELECT <include refid="selectFields"></include>
         FROM observation
-        WHERE 1 = 1
-        <if test="sensorId!=null">
-            and procedure_id = #{sensorId}
-        </if>
+        WHERE proc_id = #{procedureId}
+    </select>
+
+    <select id="selectByObsType" resultMap="observation">
+        SELECT <include refid="selectFields"></include>
+        FROM observation
+        WHERE obs_type = #{type}
+    </select>
+
+    <select id="selectByObsProp" resultMap="observation">
+        SELECT <include refid="selectFields"></include>
+        FROM observation
+        WHERE obs_property = #{obsProperty}
+    </select>
+
+    <select id="selectByObsTime" resultMap="observation">
+        SELECT <include refid="selectFields"></include>
+        FROM observation
+        WHERE obs_time <![CDATA[<=]]> #{obsTime}
+    </select>
+
+    <select id="selectByTemporal" resultMap="observation">
+        SELECT <include refid="selectFields"></include>
+        FROM observation
+        WHERE begin_time <![CDATA[>=]]> #{begin} AND end_time <![CDATA[<=]]> #{end}
+    </select>
+
+    <select id="selectBySpatial" resultMap="observation">
+        SELECT <include refid="selectFields"></include>
+        FROM observation
+        WHERE ST_Within(ST_GeomFromText(#{bbox}, 4326), geom) = true
     </select>
 
     <resultMap id="observation" type="Observation">
         <id property="id" column="id"/>
-        <result property="outId" column="observation_id"/>
-        <result property="description" column="observation_description"/>
-        <result property="time" javaType="java.time.Instant" column="observation_time" jdbcType="TIMESTAMP"/>
-        <result property="type" column="observation_type"/>
-        <result property="procedureId" column="procedure_id"/>
-        <result property="foiId" column="feature_of_interest_id"/>
-        <result property="observedProperty" column="observed_property"/>
-        <result property="value" column="observation_value"/>
+        <result property="procedureId" column="proc_id"/>
+        <result property="name" column="obs_name"/>
+        <result property="description" column="obs_des"/>
+        <result property="obsTime" column="obs_time"/>
+        <result property="beginTime" column="begin_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="bbox" column="bbox"/>
+        <result property="obsProperty" column="obs_property"/>
+        <result property="type" column="obs_type"/>
+        <result property="mapping" column="mapping"/>
+        <result property="outId" column="out_id"/>
     </resultMap>
 
 </mapper>

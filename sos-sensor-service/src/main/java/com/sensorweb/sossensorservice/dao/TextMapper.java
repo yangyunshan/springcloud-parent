@@ -1,6 +1,6 @@
 package com.sensorweb.sossensorservice.dao;
 
-import com.sensorweb.sossensorservice.entity.sos.Text;
+import com.sensorweb.sossensorservice.entity.Text;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -15,5 +15,6 @@ public interface TextMapper {
     int deleteById(int id);
     int deleteByOutId(String outId);
 
+    List<Text> selectByOutId(String outId);
     List<String> selectByNameAndValue(@Param("name") String name, @Param("value") String value);
 }

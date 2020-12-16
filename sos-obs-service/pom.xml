@@ -29,6 +29,11 @@
 			<artifactId>ogc-services-sos</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>com.sensorweb</groupId>
+			<artifactId>datacenter-util</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 <!--		MyBatis-->
 		<dependency>
 			<groupId>org.mybatis.spring.boot</groupId>
@@ -46,12 +51,6 @@
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-spring-boot-starter-jaxws</artifactId>
 			<version>3.3.7</version>
-		</dependency>
-<!--		FTP-->
-		<dependency>
-			<groupId>commons-net</groupId>
-			<artifactId>commons-net</artifactId>
-			<version>3.6</version>
 		</dependency>
 	</dependencies>
 

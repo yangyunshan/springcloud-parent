@@ -2,55 +2,55 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.datacenter.dao.PositionMapper">
+<mapper namespace="com.sensorweb.sossensorservice.dao.PositionMapper">
     <sql id="insertFields">
-        position_name, position_longitude, position_latitude, position_altitude, procedure_id
+        pos_name, lon, lat, alt, geom, proc_id
     </sql>
 
     <sql id="selectFields">
-        procedure_id
+        id, pos_name, lon, lat, alt, proc_id
     </sql>
 
     <insert id="insertData" parameterType="Position">
         INSERT INTO position (<include refid="insertFields"></include>)
-        VALUES (#{name}, #{longitude}, #{latitude}, #{altitude}, #{procedureId})
+        VALUES (#{name}, #{longitude}, #{latitude}, #{altitude}, ST_GeomFromText(#{wkt}, 4326), #{procedureId})
     </insert>
 
     <delete id="deleteByProcedureId">
         DELETE FROM position
-        WHERE procedure_id = #{procedureId}
+        WHERE proc_id = #{procedureId}
     </delete>
 
     <delete id="deleteById" parameterType="int">
         DELETE FROM position
-        WHERE position_id = #{id}
+        WHERE id = #{id}
     </delete>
 
-    <select id="selectById" parameterType="int" resultType="java.lang.String">
+    <select id="selectByProcedureId" resultMap="position">
         SELECT <include refid="selectFields"></include>
         FROM position
-        WHERE position_id = #{id}
+        WHERE proc_id = #{procedureId}
     </select>
 
-    <select id="selectByName" parameterType="java.lang.String" resultType="java.lang.String">
+    <select id="selectByName" resultMap="position">
         SELECT <include refid="selectFields"></include>
         FROM position
-        WHERE position_name like concat('%', #{name}, '%')
+        WHERE pos_name like concat('%', #{name}, '%')
     </select>
 
-    <select id="selectByEnvelope" resultType="java.lang.String">
+    <select id="selectByEnvelope" resultMap="position">
         SELECT <include refid="selectFields"></include>
         FROM position
-        WHERE position_longitude <![CDATA[<=]]> #{maxLon} AND position_latitude <![CDATA[<=]]> #{maxLat} AND position_longitude <![CDATA[>=]]> #{minLon} AND position_latitude <![CDATA[>=]]> #{minLat}
+        WHERE lon <![CDATA[<=]]> #{maxLon} AND lat <![CDATA[<=]]> #{maxLat} AND lon <![CDATA[>=]]> #{minLon} AND lat <![CDATA[>=]]> #{minLat}
     </select>
 
     <resultMap id="position" type="Position">
-        <id property="id" column="position_id"/>
-        <result property="name" column="position_name"/>
-        <result property="procedureId" column="procedure_id"/>
-        <result property="longitude" column="position_longitude"/>
-        <result property="latitude" column="position_latitude"/>
-        <result property="altitude" column="position_altitude"/>
+        <id property="id" column="id"/>
+        <result property="name" column="pos_name"/>
+        <result property="procedureId" column="proc_id"/>
+        <result property="longitude" column="lon"/>
+        <result property="latitude" column="lat"/>
+        <result property="altitude" column="alt"/>
     </resultMap>
 
 </mapper>

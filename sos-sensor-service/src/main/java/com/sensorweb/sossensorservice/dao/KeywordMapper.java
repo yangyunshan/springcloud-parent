@@ -1,8 +1,9 @@
 package com.sensorweb.sossensorservice.dao;
 
-import com.sensorweb.sossensorservice.entity.sos.Keyword;
+import com.sensorweb.sossensorservice.entity.Keyword;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 @Repository
@@ -13,6 +14,6 @@ public interface KeywordMapper {
     int deleteById(int id);
     int deleteByProcedureId(String procedureId);
 
-    String selectById(int id);
+    List<String> selectByProcedureId(String procedureId);
     List<String> selectByValue(String value);
 }

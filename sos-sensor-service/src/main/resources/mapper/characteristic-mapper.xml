@@ -2,47 +2,48 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.datacenter.dao.CharacteristicMapper">
+<mapper namespace="com.sensorweb.sossensorservice.dao.CharacteristicMapper">
     <sql id="insertFields">
-        characteristic_name, characteristic_value, procedure_id
+        ch_name, ch_label, out_id, proc_id
     </sql>
 
     <sql id="selectFields">
-        characteristic_id, characteristic_name, characteristic_value, procedure_id
+        id, ch_name, ch_label, out_id, proc_id
     </sql>
 
     <insert id="insertData" parameterType="Characteristic">
         INSERT INTO characteristic (<include refid="insertFields"></include>)
-        VALUES (#{name}, #{value}, #{procedureId})
+        VALUES (#{name}, #{label}, #{outId}, #{procedureId})
     </insert>
 
     <delete id="deleteByProcedureId">
         DELETE FROM characteristic
-        WHERE procedure_id = #{procedureId}
+        WHERE proc_id = #{procedureId}
     </delete>
 
     <delete id="deleteById" parameterType="int">
         DELETE FROM characteristic
-        WHERE characteristic_id = #{id}
+        WHERE id = #{id}
     </delete>
 
-    <select id="selectById" parameterType="int" resultMap="characteristic">
+    <select id="selectByProcedureId" resultMap="characteristic">
         SELECT <include refid="selectFields"></include>
         FROM characteristic
-        WHERE characteristic_id = #{id}
+        WHERE proc_id = #{id}
     </select>
 
     <select id="selectByName" resultMap="characteristic">
         SELECT <include refid="selectFields"></include>
         FROM characteristic
-        WHERE characteristic_name = #{name}
+        WHERE ch_name = #{name}
     </select>
 
     <resultMap id="characteristic" type="Characteristic">
-        <id property="id" column="characteristic_id"/>
-        <result property="name" column="characteristic_name"/>
-        <result property="value" column="characteristic_value"/>
-        <result property="procedureId" column="procedure_id"/>
+        <id property="id" column="id"/>
+        <result property="name" column="ch_name"/>
+        <result property="label" column="ch_label"/>
+        <result property="outId" column="out_id"/>
+        <result property="procedureId" column="proc_id"/>
     </resultMap>
 
 </mapper>

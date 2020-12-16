@@ -1,18 +1,12 @@
 package com.sensorweb.sosobsservice.webservice.impl;
 
-import com.sensorweb.sosobsservice.entity.sos.Observation;
 import com.sensorweb.sosobsservice.service.GetObservationService;
 import com.sensorweb.sosobsservice.service.InsertObservationService;
-import com.sensorweb.sosobsservice.util.DataCenterUtils;
 import com.sensorweb.sosobsservice.webservice.SOSWebservice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.vast.ows.sos.*;
-import org.vast.xml.DOMHelper;
-import org.w3c.dom.Element;
 
 import javax.jws.WebService;
-import java.util.List;
 
 @WebService(serviceName = "SOS", targetNamespace = "http://webservice.datacenter.sensorweb.com/",
         endpointInterface = "com.sensorweb.sosobsservice.webservice.SOSWebservice")
