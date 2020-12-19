@@ -16,8 +16,7 @@ public class DeleteObsService {
     /**
      * 根据procedureId删除观测数据信息
      */
-    public boolean deleteObservationById(String procedureId) {
-        int status = observationMapper.deleteByProcedureId(procedureId);
-        return status>0;
+    public int deleteObservationById(String procedureId) {
+        return observationMapper.deleteByProcedureId(procedureId);
     }
 }

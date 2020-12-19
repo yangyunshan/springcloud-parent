@@ -12,6 +12,7 @@ import java.util.List;
 @Mapper
 public interface ObservationMapper {
     int insertData(Observation observation);
+    int insertDataBatch(List<Observation> observations);
 
     int deleteByProcedureId(String procedureId);
 

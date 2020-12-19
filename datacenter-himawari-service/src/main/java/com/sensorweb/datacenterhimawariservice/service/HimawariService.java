@@ -2,12 +2,12 @@ package com.sensorweb.datacenterhimawariservice.service;
 
 import com.sensorweb.datacenterhimawariservice.dao.HimawariMapper;
 import com.sensorweb.datacenterhimawariservice.entity.Himawari;
+import com.sensorweb.datacenterhimawariservice.entity.Observation;
 import com.sensorweb.datacenterhimawariservice.feign.ObsFeignClient;
 import com.sensorweb.datacenterhimawariservice.feign.SensorFeignClient;
 import com.sensorweb.datacenterhimawariservice.util.HimawariConstant;
 import com.sensorweb.datacenterutil.utils.DataCenterUtils;
 import com.sensorweb.datacenterutil.utils.FTPUtils;
-import com.sensorweb.sosobsservice.entity.Observation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.ftp.FTPClient;

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.vast.ogc.om.IObservation;
 import org.vast.ows.sos.InsertObservationRequest;
 
@@ -25,7 +26,7 @@ import java.util.Map;
 @Slf4j
 @Api("观测数据注册相关API")
 @CrossOrigin
-@Controller
+@RestController
 public class InsertObsController implements ObsConstant {
     @Autowired
     private InsertObservationService insertObservationService;
@@ -57,14 +58,13 @@ public class InsertObsController implements ObsConstant {
 
     @ApiOperation("插入自定义Observation对象数据")
     @PostMapping("observation/insertData")
-    public Map<String, Object> insertData(@ApiParam(name = "observation", value = "自定义Observation对象") @RequestBody Observation observation) {
-        Map<String, Object> res = new HashMap<>();
-        boolean flag = insertObservationService.insertObservationData(observation);
-        if (flag) {
-            res.put("status", true);
-        } else {
-            res.put("status", false);
-        }
-        return res;
+    public int insertData(@ApiParam(name = "observation", value = "自定义Observation对象") @RequestBody Observation observation) {
+        return insertObservationService.insertObservationData(observation);
+    }
+
+    @ApiOperation("批量插入自定义Observation对象数据")
+    @PostMapping("observation/insertDataBatch")
+    public int insertDataBatch(@ApiParam(name = "observations", value = "批量的自定义Observation对象") @RequestBody List<Observation> observations) {
+        return insertObservationService.insertObservationDataBatch(observations);
     }
 }

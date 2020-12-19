@@ -11,9 +11,17 @@
         id, station_name, uniquecode, querytime, pm25OneHour, pm10OneHour, so2OneHour, no2OneHour, coOneHour, o3OneHour, aqi, primaryEP, aqDegree, aqType
     </sql>
 
-    <insert id="insertData" parameterType="Observation" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertData" parameterType="AirQualityHour" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO air_quality_hourly (<include refid="insertFields"></include>)
         VALUES (#{stationName}, #{uniqueCode}, #{queryTime}, #{pm25OneHour}, #{pm10OneHour}, #{so2OneHour}, #{no2OneHour}, #{coOneHour}, #{o3OneHour}, #{aqi}, #{primaryEP}, #{aqDegree}, #{aqType});
+    </insert>
+
+    <insert id="insertDataBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO air_quality_hourly (<include refid="insertFields"></include>)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.stationName}, #{item.uniqueCode}, #{item.queryTime}, #{item.pm25OneHour}, #{item.pm10OneHour}, #{item.so2OneHour}, #{item.no2OneHour}, #{item.coOneHour}, #{item.o3OneHour}, #{item.aqi}, #{item.primaryEP}, #{item.aqDegree}, #{item.aqType});
+        </foreach>
     </insert>
 
     <select id="selectById" resultMap="airQualityHour">

@@ -17,6 +17,14 @@
         VALUES (#{modelId}, #{modelName}, #{indexName}, #{description}, #{field}, #{subject}, #{beginTime}, #{endTime}, #{bbox}, ST_GeomFromText(#{wkt}, 4326))
     </insert>
 
+    <insert id="insertDataBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO theme (<include refid="insertFields"></include>)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.modelId}, #{item.modelName}, #{item.indexName}, #{item.description}, #{item.field}, #{item.subject}, #{item.beginTime}, #{item.endTime}, #{item.bbox}, ST_GeomFromText(#{item.wkt}, 4326))
+        </foreach>
+    </insert>
+
     <select id="selectAll" resultMap="theme">
         SELECT <include refid="selectFields"></include>
         FROM theme t, sub_theme s

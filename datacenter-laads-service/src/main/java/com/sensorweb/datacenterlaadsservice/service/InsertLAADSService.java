@@ -1,16 +1,13 @@
 package com.sensorweb.datacenterlaadsservice.service;
 
 import com.sensorweb.datacenterlaadsservice.dao.EntryMapper;
-import com.sensorweb.datacenterlaadsservice.entity.Entry;
-import com.sensorweb.datacenterlaadsservice.entity.LAADSCollection;
-import com.sensorweb.datacenterlaadsservice.entity.LAADSProduct;
-import com.sensorweb.datacenterlaadsservice.entity.SatelliteInstrument;
+import com.sensorweb.datacenterlaadsservice.entity.*;
 import com.sensorweb.datacenterlaadsservice.feign.ObsFeignClient;
 import com.sensorweb.datacenterlaadsservice.feign.SensorFeignClient;
 import com.sensorweb.datacenterlaadsservice.util.LAADSConstant;
 import com.sensorweb.datacenterutil.utils.DataCenterUtils;
-import com.sensorweb.sosobsservice.entity.Observation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -54,12 +51,12 @@ public class InsertLAADSService implements LAADSConstant {
     @Value("${datacenter.domain}")
     private String domain;
 
-    @Scheduled(cron = "0 30 23 * * ?")//每天的23:00分执行一次
+    @Scheduled(cron = "0 30 0 * * ?")//每天的0:30分执行一次
     public void insertDataByDay() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
         Calendar calendar = Calendar.getInstance();
         String start = format.format(calendar.getTime());
-//        calendar.add(Calendar.DATE,-1);
+        calendar.add(Calendar.DATE,-1);
         String stop = format.format(calendar.getTime()).replace("00:00:00", "23:59:59");
         String bbox = "90.55,24.5,112.417,34.75";//长江流域经纬度范围
         new Thread(new Runnable() {
@@ -184,20 +181,22 @@ public class InsertLAADSService implements LAADSConstant {
                     }
                     if (entryElement.getName().equals("box")) {
                         String[] bboxes = entryElement.getText().split(",");
-                        temp.setBbox(bboxes[0] + " " + bboxes[1] + "," + bboxes[2] + " " + bboxes[3]);
+                        temp.setBbox(bboxes[0].trim() + " " + bboxes[1].trim() + "," + bboxes[2].trim() + " " + bboxes[3].trim());
                         continue;
                     }
                     if (entryElement.getName().equals("summary")) {
                         temp.setSummary(entryElement.getText());
                     }
                 }
-                String[] corners = temp.getBbox().split(",");
-                String[] lowerCorner = corners[0].split(" ");
-                String[] upperCorner = corners[1].split(" ");
-                String wkt = "POLYGON((" + lowerCorner[0] + " " + lowerCorner[1] + "," + lowerCorner[0] + " " + upperCorner[1] + "," +
-                        upperCorner[0] + " " + upperCorner[1] + "," + upperCorner[0] + " " + lowerCorner[1] + "," +
-                        lowerCorner[0] + " " + lowerCorner[1] + "))";
-                temp.setWkt(wkt);
+                if (!StringUtils.isBlank(temp.getBbox())) {
+                    String[] corners = temp.getBbox().split(",");
+                    String[] lowerCorner = corners[0].split(" ");
+                    String[] upperCorner = corners[1].split(" ");
+                    String wkt = "POLYGON((" + lowerCorner[0] + " " + lowerCorner[1] + "," + lowerCorner[0] + " " + upperCorner[1] + "," +
+                            upperCorner[0] + " " + upperCorner[1] + "," + upperCorner[0] + " " + lowerCorner[1] + "," +
+                            lowerCorner[0] + " " + lowerCorner[1] + "))";
+                    temp.setWkt(wkt);
+                }
                 entries.add(temp);
             }
         }
@@ -366,49 +365,58 @@ public class InsertLAADSService implements LAADSConstant {
             }
         }
         List<String> products = getProductsByInstrument(satellite);
+//        int index = 0;
+        List<Observation> observations = new ArrayList<>();
+        List<Entry> entryList = new ArrayList<>();
         if (products!=null && products.size()>0) {
             for (String product:products) {
                 List<LAADSCollection> collections = getCollectionsByProduct(product);
                 if (collections!=null && collections.size()>0) {
                     for (LAADSCollection collection:collections) {
+//                        index++;
+//                        System.out.println(index + ": " + product + ": " + collection.getName());
                         String response = getInfoByOpenSearch(product, Integer.parseInt(collection.getName()), startTime, endTime, bbox);
                         List<Entry> entries = getEntryInfo(response);
-                        if (entries!=null && entries.size()>0) {
+                        entryList.addAll(entries);
+                        if (entries.size()>0) {
                             for (Entry entry:entries) {
-                                String fileName = entry.getLink().substring(entry.getLink().lastIndexOf("/") + 1);
-                                File file = new File(filePath);
-                                if (!file.exists()) {
-                                    boolean flag = file.mkdirs();
-                                }
-                                String localPath = downloadFromUrl(entry.getLink(), fileName, filePath);
-                                entry.setFilePath(localPath);
-                                int status = entryMapper.insertData(entry);
-                                if (status>0) {
-                                    //远程文件下载到本地，并记录本地存储路径
-                                    Observation observation = new Observation();
-                                    observation.setProcedureId(procedure);
-                                    observation.setObsTime(entry.getStop());
-                                    observation.setBeginTime(entry.getStart());
-                                    observation.setEndTime(entry.getStop());
-                                    observation.setObsProperty(obsProperty);
-                                    observation.setType("hdf");
-                                    observation.setMapping("laads_entry");
-                                    observation.setName(entry.getTitle());
-                                    observation.setBbox(entry.getBbox());
-                                    observation.setWkt(entry.getWkt());
-                                    observation.setOutId(entry.getId());
-                                    boolean flag = sensorFeignClient.isExist(procedureId);
-                                    if (flag) {
-                                        obsFeignClient.insertData(observation);
-                                    } else {
-                                        log.info("procedure: " + procedure + "不存在");
-                                        throw new Exception("procedure: " + procedure + "不存在");
+                                if (!StringUtils.isBlank(entry.getLink())) {
+                                    String fileName = entry.getLink().substring(entry.getLink().lastIndexOf("/") + 1);
+                                    File file = new File(filePath);
+                                    if (!file.exists()) {
+                                        boolean flag = file.mkdirs();
                                     }
+//                                String localPath = downloadFromUrl(entry.getLink(), fileName, filePath);
+                                    entry.setFilePath("localPath");
                                 }
+                                //远程文件下载到本地，并记录本地存储路径
+                                Observation observation = new Observation();
+                                observation.setProcedureId(procedure);
+                                observation.setObsTime(entry.getStop());
+                                observation.setBeginTime(entry.getStart());
+                                observation.setEndTime(entry.getStop());
+                                observation.setObsProperty(obsProperty);
+                                observation.setType("hdf");
+                                observation.setMapping("entry");
+                                observation.setName(entry.getTitle());
+                                observation.setBbox(entry.getBbox());
+                                observation.setWkt(entry.getWkt());
+                                observation.setOutId(entry.getId());
+                                observations.add(observation);
                             }
                         }
                     }
                 }
+            }
+            boolean flag = sensorFeignClient.isExist(procedureId);
+            if (flag) {
+                int status = obsFeignClient.insertDataBatch(observations);
+                if (status>0) {
+                    entryMapper.insertDataBatch(entryList);
+                }
+            } else {
+                log.info("procedure: " + procedure + "不存在");
+                throw new Exception("procedure: " + procedure + "不存在");
             }
         }
     }

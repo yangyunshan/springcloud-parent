@@ -6,17 +6,13 @@
         <artifactId>springcloud-parent</artifactId>
         <groupId>com.sensorweb</groupId>
         <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>swe-common-core</artifactId>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>ch.qos.logback</groupId>-->
-<!--            <artifactId>logback-classic</artifactId>-->
-<!--            <version>1.2.3</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>woodstox-core-asl</artifactId>
@@ -43,5 +39,4 @@
             <version>1.10.3</version>
         </dependency>
     </dependencies>
-
 </project>

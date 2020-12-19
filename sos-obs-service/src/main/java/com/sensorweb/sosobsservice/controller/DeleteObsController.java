@@ -24,14 +24,7 @@ public class DeleteObsController {
 
     @ApiOperation("通过观测数据id删除观测数据")
     @DeleteMapping("observation/delete/{id}")
-    public Map<String, Object> deleteObservationById(@ApiParam(name = "procedureId", value = "待删除的观测数据id") @PathVariable("id") String procedureId) {
-        Map<String, Object> res = new HashMap<>();
-        boolean flag = deleteObsService.deleteObservationById(procedureId);
-        if (flag) {
-            res.put("status", true);
-        } else {
-            res.put("status", false);
-        }
-        return res;
+    public int deleteObservationById(@ApiParam(name = "procedureId", value = "待删除的观测数据id") @PathVariable("id") String procedureId) {
+        return deleteObsService.deleteObservationById(procedureId);
     }
 }

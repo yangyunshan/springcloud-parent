@@ -6,7 +6,6 @@ import com.sensorweb.datacenterairservice.feign.ObsFeignClient;
 import com.sensorweb.datacenterairservice.feign.SensorFeignClient;
 import com.sensorweb.datacenterairservice.util.AirConstant;
 import com.sensorweb.datacenterutil.utils.DataCenterUtils;
-import com.sensorweb.sosobsservice.entity.Observation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
@@ -38,6 +37,9 @@ import java.util.List;
 @EnableScheduling
 public class InsertAirService extends Thread implements AirConstant {
     @Autowired
+    private AirQualityHourMapper airQualityHourMapper;
+
+    @Autowired
     private SensorFeignClient sensorFeignClient;
 
     @Autowired
@@ -61,6 +63,8 @@ public class InsertAirService extends Thread implements AirConstant {
                         if (!flag) {
                             log.info("湖北省监测站接入时间: " + dateTime.toString() + "Status: Success");
                             System.out.println("湖北省监测站接入时间: " + dateTime.toString() + "Status: Success");
+                        } else {
+                            System.out.println("等待中...");
                         }
                         Thread.sleep(2 * 60 * 1000);
                     } catch (Exception e) {
@@ -78,9 +82,6 @@ public class InsertAirService extends Thread implements AirConstant {
      * 根据时间接入指定时间的小时数据（当数据库中缺少某个时间段的数据时，可作为数据补充）
      * @throws Exception
      */
-    @Autowired
-    private AirQualityHourMapper airQualityHourMapper;
-
     @Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean insertHourDataByHour(String time) throws Exception {
         String param = "UsrName=" + AirConstant.USER_NAME + "&passWord=" + AirConstant.PASSWORD +

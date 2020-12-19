@@ -6,7 +6,7 @@
         <groupId>com.sensorweb</groupId>
         <artifactId>springcloud-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath>../pom.xml</relativePath> <!-- lookup parent from repository -->
     </parent>
     <artifactId>datacenter-air-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -24,9 +24,8 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.sensorweb</groupId>
-            <artifactId>sos-obs-service</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>

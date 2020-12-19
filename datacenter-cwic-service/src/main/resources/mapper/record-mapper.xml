@@ -16,6 +16,14 @@
         VALUES (#{identifier}, #{title}, #{creator}, #{publisher}, #{mediator}, #{type}, #{modified}, #{begin}, #{end}, #{reference}, #{bbox}, ST_GeomFromText(#{wkt}, 4326))
     </insert>
 
+    <insert id="insertDataBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO record (<include refid="insertFields"></include>)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.identifier}, #{item.title}, #{item.creator}, #{item.publisher}, #{item.mediator}, #{item.type}, #{item.modified}, #{item.begin}, #{item.end}, #{item.reference}, #{item.bbox}, ST_GeomFromText(#{item.wkt}, 4326))
+        </foreach>
+    </insert>
+
     <select id="selectById" resultMap="record">
         SELECT <include refid="selectFields"></include>
         FROM record

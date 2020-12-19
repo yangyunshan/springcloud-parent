@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sensorweb.sossensorservice.dao.ObservationMapper">
+<mapper namespace="com.sensorweb.sosobsservice.dao.ObservationMapper">
     <sql id="insertFields">
         proc_id, obs_name, obs_des, obs_time, begin_time, end_time, bbox, geom, obs_property, obs_type, mapping, out_id
     </sql>
@@ -14,6 +14,14 @@
     <insert id="insertData" parameterType="Observation">
         INSERT INTO observation (<include refid="insertFields"></include>)
         VALUES (#{procedureId}, #{name}, #{description}, #{obsTime}, #{beginTime}, #{endTime}, #{bbox}, ST_GeomFromText(#{wkt}, 4326), #{obsProperty}, #{type}, #{mapping}, #{outId})
+    </insert>
+
+    <insert id="insertDataBatch" parameterType="java.util.List">
+        INSERT INTO observation (<include refid="insertFields"></include>)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.procedureId}, #{item.name}, #{item.description}, #{item.obsTime}, #{item.beginTime}, #{item.endTime}, #{item.bbox}, ST_GeomFromText(#{item.wkt}, 4326), #{item.obsProperty}, #{item.type}, #{item.mapping}, #{item.outId})
+        </foreach>
     </insert>
 
     <delete id="deleteByProcedureId">

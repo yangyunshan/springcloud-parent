@@ -1,0 +1,43 @@
+server:
+  port: 9999
+spring:
+  profiles:
+    active: dev
+  application:
+    name: datacenter-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          # 服务名小写
+          lower-case-service-id: true
+      routes:
+        - id: sos-sensor-service
+          # lb代表从注册中心获取服务,且以负载均衡方式转发
+          uri: lb://sos-sensor-service
+          predicates:
+            - Path=/sensor/**
+          # 加上StripPrefix=1,否则转发到后端服务时会带上consumer前缀
+          filters:
+            - StripPrefix=1
+
+# eureka注册中心
+eureka:
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://eureka-server01:7001/eureka/
+
+
+# 暴露监控端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always

@@ -138,8 +138,14 @@ public class InsertObservationService {
     /**
      * 插入自定义Observation对象数据
      */
-    public boolean insertObservationData(Observation observation) {
-        int status = observationMapper.insertData(observation);
-        return status>0;
+    public int insertObservationData(Observation observation) {
+        return observationMapper.insertData(observation);
+    }
+
+    /**
+     * 批量插入自定义Observation对象数据
+     */
+    public int insertObservationDataBatch(List<Observation> observations) {
+        return observationMapper.insertDataBatch(observations);
     }
 }

@@ -10,6 +10,7 @@ import java.util.List;
 @Mapper
 public interface ThemeMapper {
     int insertData(Theme theme);
+    int insertDataBatch(List<Theme> themes);
 
     List<Theme> selectAll();
     Theme selectByModelId(String modelId);

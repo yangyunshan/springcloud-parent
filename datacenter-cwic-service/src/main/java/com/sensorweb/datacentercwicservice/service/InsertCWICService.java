@@ -3,12 +3,12 @@ package com.sensorweb.datacentercwicservice.service;
 import com.sensorweb.datacentercwicservice.dao.RecordMapper;
 import com.sensorweb.datacentercwicservice.entity.Catalog;
 import com.sensorweb.datacentercwicservice.entity.DataSet;
+import com.sensorweb.datacentercwicservice.entity.Observation;
 import com.sensorweb.datacentercwicservice.entity.Record;
 import com.sensorweb.datacentercwicservice.feign.ObsFeignClient;
 import com.sensorweb.datacentercwicservice.feign.SensorFeignClient;
 import com.sensorweb.datacentercwicservice.util.CWICConstant;
 import com.sensorweb.datacenterutil.utils.DataCenterUtils;
-import com.sensorweb.sosobsservice.entity.Observation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
@@ -16,6 +16,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -24,8 +25,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 @Slf4j
@@ -167,7 +173,8 @@ public class InsertCWICService implements CWICConstant {
         List<Record> res = new ArrayList<>();
 
         Document document = DocumentHelper.parseText(str);
-        List<Element> records = document.selectNodes("/csw:GetRecordsResponse/csw:SearchResults/csw:Record");
+        Element root = document.getRootElement();
+        List<Element> records = root.element("SearchResults").elements("Record");
         for (Element record:records) {
             Record recordTemp = new Record();
             String identifier = record.element("identifier").getText();
@@ -204,17 +211,20 @@ public class InsertCWICService implements CWICConstant {
             reference.delete(reference.length()-"||".length(),reference.length());
             recordTemp.setReference(reference.toString());
 
-            String lowerCorner = record.element("WGS84BoundingBox").element("LowerCorner").getText();
-            String upperCorner = record.element("WGS84BoundingBox").element("UpperCorner").getText();
-            if (!StringUtils.isBlank(lowerCorner) && !StringUtils.isBlank(upperCorner)) {
-                String wkt = "POLYGON((" + lowerCorner + "," +
-                        lowerCorner.split(" ")[0] + " " + upperCorner.split(" ")[1] + "," +
-                        upperCorner + "," +
-                        upperCorner.split(" ")[0] + " " + lowerCorner.split(" ")[1] + "," +
-                        lowerCorner + "))";
-                recordTemp.setWkt(wkt);
+            Element bbox = record.element("WGS84BoundingBox");
+            if (bbox!=null) {
+                String lowerCorner = bbox.element("LowerCorner").getText();
+                String upperCorner = bbox.element("UpperCorner").getText();
+                if (!StringUtils.isBlank(lowerCorner) && !StringUtils.isBlank(upperCorner)) {
+                    String wkt = "POLYGON((" + lowerCorner + "," +
+                            lowerCorner.split(" ")[0] + " " + upperCorner.split(" ")[1] + "," +
+                            upperCorner + "," +
+                            upperCorner.split(" ")[0] + " " + lowerCorner.split(" ")[1] + "," +
+                            lowerCorner + "))";
+                    recordTemp.setWkt(wkt);
+                }
+                recordTemp.setBbox(lowerCorner + "," + upperCorner);
             }
-            recordTemp.setBbox(lowerCorner + "," + upperCorner);
             res.add(recordTemp);
         }
         return res;
@@ -227,14 +237,14 @@ public class InsertCWICService implements CWICConstant {
         if (!str.contains("T")) {
             String[] temp = str.split(" ");
             if (temp.length<2 || StringUtils.isBlank(temp[1])) {
-                str = temp[0] + "T:00:00:00Z";
+                str = temp[0] + "T00:00:00Z";
             } else {
                 str = temp[0] + "T" + temp[1].substring(0, 8) + "Z";
             }
         } else {
             String[] temp = str.split("T");
             if (StringUtils.isBlank(temp[1])) {
-                str = temp[0] + "T:00:00:00Z";
+                str = temp[0] + "T00:00:00Z";
             } else {
                 str = temp[0] + "T" + temp[1].substring(0, 8) + "Z";
             }
@@ -249,7 +259,8 @@ public class InsertCWICService implements CWICConstant {
         int res = 0;
 
         Document document = DocumentHelper.parseText(str);
-        Element searchResults = (Element) document.selectNodes("/csw:GetRecordsResponse/csw:SearchResults").get(0);
+        Element root = document.getRootElement();
+        Element searchResults = root.element("SearchResults");
         res = Integer.parseInt(searchResults.attributeValue("numberOfRecordsMatched"));
 
         return res;
@@ -262,7 +273,8 @@ public class InsertCWICService implements CWICConstant {
         int res = 0;
 
         Document document = DocumentHelper.parseText(str);
-        Element searchResults = (Element) document.selectNodes("/csw:GetRecordsResponse/csw:SearchResults").get(0);
+        Element root = document.getRootElement();
+        Element searchResults = root.element("SearchResults");
         res = Integer.parseInt(searchResults.attributeValue("nextRecord"));
 
         return res;
@@ -272,42 +284,89 @@ public class InsertCWICService implements CWICConstant {
      * 通过数据集、时空参数接入数据
      */
     @Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void insertData(String catalog, String datasetId, String spatial_lowerCorner, String spatial_upperCorner,
-                        String temporal_begin, String temporal_end, int startPosition, int maxRecords) throws Exception {
-        String str = getRecordsDoc(datasetId, spatial_lowerCorner, spatial_upperCorner, temporal_begin, temporal_end, startPosition, maxRecords);
+    public boolean insertData(String catalog, String datasetId, String spatialLowerCorner, String spatialUpperCorner,
+                        String temporalBegin, String temporalEnd, int startPosition, int maxRecords) throws Exception {
+        String str = getRecordsDoc(datasetId, spatialLowerCorner, spatialUpperCorner, temporalBegin, temporalEnd, startPosition, maxRecords);
         int count = getNumOfRecords(str);
-        while (startPosition<count) {
-            String recordDoc = getRecordsDoc(datasetId, spatial_lowerCorner, spatial_upperCorner, temporal_begin, temporal_end, startPosition, maxRecords);
+        while (startPosition<count && startPosition!=0) {
+            String recordDoc = getRecordsDoc(datasetId, spatialLowerCorner, spatialUpperCorner, temporalBegin, temporalEnd, startPosition, maxRecords);
             List<Record> records = getRecords(recordDoc);
+            List<Observation> observations = new ArrayList<>();
             //将record记录插入到数据库中
             if (records!=null && records.size()>0) {
                 for (Record record:records) {
-                    int status = recordMapper.insertData(record);
+                    Observation observation = new Observation();
+                    observation.setProcedureId(procedureId + ":" + catalog);
+                    observation.setMapping("record");
+                    observation.setType("file");
+                    observation.setObsProperty("");
+                    observation.setObsTime(record.getEnd());
+                    observation.setBeginTime(record.getBegin());
+                    observation.setEndTime(record.getEnd());
+                    observation.setBbox(record.getBbox());
+                    observation.setWkt(record.getWkt());
+                    observation.setName(record.getTitle());
+                    observation.setOutId(record.getId());
+                    observations.add(observation);
+                }
+                boolean flag = sensorFeignClient.isExist(procedureId + ":" + catalog);
+                if (flag) {
+                    int status = recordMapper.insertDataBatch(records);
                     if (status>0) {
-                        Observation observation = new Observation();
-                        observation.setProcedureId(procedureId + ":" + catalog);
-                        observation.setMapping("cwic_record");
-                        observation.setType("file");
-                        observation.setObsProperty("");
-                        observation.setObsTime(record.getEnd());
-                        observation.setBeginTime(record.getBegin());
-                        observation.setEndTime(record.getEnd());
-                        observation.setBbox(record.getBbox());
-                        observation.setWkt(record.getWkt());
-                        observation.setName(record.getTitle());
-                        observation.setOutId(record.getId());
-                        boolean flag = sensorFeignClient.isExist(observation.getProcedureId());
-                        if (flag) {
-                            obsFeignClient.insertData(observation);
-                        } else {
-                            log.info("procedure: " + observation.getProcedureId() + "不存在");
-                            throw new Exception("procedure: " + observation.getProcedureId() + "不存在");
-                        }
+                        obsFeignClient.insertDataBatch(observations);
                     }
+                } else {
+                    log.info("procedure: " + procedureId + ":" + catalog + "不存在");
+                    return false;
                 }
             }
-            startPosition = getNextRecord(str);
+            startPosition = getNextRecord(recordDoc);
         }
+        return true;
     }
+
+    @Scheduled(cron = "0 0 0/12 * * ? ")//0点开始,每12小时执行一次
+    public void insertDataByDay() {
+        String lowerCorner = "90.55 24.5";
+        String upperCorner = "112.417 34.75";
+        LocalDateTime dateTime = LocalDateTime.now(ZoneId.of("Asia/Shanghai"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:00:00").withZone(ZoneId.of("Asia/Shanghai"));
+        String endTime = formatter.format(dateTime);
+        String beginTime = formatter.format(dateTime.minusHours(12));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String doc = getCapabilities();
+                    List<Catalog> catalogs = getCatalog(doc);
+                    if (catalogs!=null && catalogs.size()>0) {
+                        for (Catalog catalog:catalogs) {
+                            if (catalog.getId().equals("USGSLSI")) {
+                                List<DataSet> dataSets = catalog.getDatasets();
+                                if (dataSets!=null && dataSets.size()>0) {
+                                    for (DataSet dataSet:dataSets) {
+                                        boolean flag = insertData(catalog.getId(), dataSet.getId(), lowerCorner, upperCorner, beginTime, endTime, 1, 100);
+                                        if (flag) {
+                                            log.info("CWIC目录服务接入时间: " + dateTime.toString() + "Status: Success");
+                                            System.out.println("CWIC目录服务接入时间: " + dateTime.toString() + "Status: Success");
+                                        } else {
+                                            System.out.println("CWIC目录服务接入时间: " + dateTime.toString() + "Status: Failed");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                    log.info("CWIC目录服务接入时间: " + dateTime.toString() + " Status: Fail");
+                    System.out.println("CWIC目录服务接入时间: " + dateTime.toString() + " Status: Fail");
+                }
+            }
+        }).start();
+    }
+
+
+
 
 }

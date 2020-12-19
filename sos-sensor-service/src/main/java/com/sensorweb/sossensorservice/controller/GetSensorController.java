@@ -7,9 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +25,7 @@ public class GetSensorController {
      * 获取系统中已注册传感器信息
      */
     @ApiOperation("获取所有的传感器信息,包括传感器和平台信息")
-    @GetMapping(path = "/sensor/getAllProcedureInfo")
+    @GetMapping(path = "sensor/getAllProcedureInfo")
     public List<Platform> getAllProcedure() {
         return describeSensorExpandService.getTOC();
     }
@@ -36,8 +34,8 @@ public class GetSensorController {
      * 查询procedure是否存在
      */
     @ApiOperation("判断传感器或平台是否存在")
-    @GetMapping("/sensor/isExist")
-    public boolean isExist(@ApiParam(name = "procedureId", value = "传感器或平台的id") String procedureId) {
+    @GetMapping("sensor/isExist/{id}")
+    public boolean isExist(@ApiParam(name = "procedureId", value = "传感器或平台的id") @PathVariable("id") String procedureId) {
         return describeSensorExpandService.isExist(procedureId);
     }
 }

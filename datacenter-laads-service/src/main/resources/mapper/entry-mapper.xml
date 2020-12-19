@@ -16,6 +16,14 @@
         VALUES (#{entryId}, #{title}, #{updated}, #{link}, #{filePath}, #{start}, #{stop}, #{bbox}, ST_GeomFromText(#{wkt}, 4326))
     </insert>
 
+    <insert id="insertDataBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO entry (<include refid="insertFields"></include>)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.entryId}, #{item.title}, #{item.updated}, #{item.link}, #{item.filePath}, #{item.start}, #{item.stop}, #{item.bbox}, ST_GeomFromText(#{item.wkt}, 4326))
+        </foreach>
+    </insert>
+
     <select id="selectById" resultMap="entry">
         SELECT <include refid="selectFields"></include>
         FROM entry
