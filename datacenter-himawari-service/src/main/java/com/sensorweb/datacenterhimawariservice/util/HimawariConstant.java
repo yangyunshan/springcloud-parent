@@ -12,7 +12,7 @@ public interface HimawariConstant {
     /**
      * Hamawari APR Level3
      */
-    String AREOSOL_PROPERTY_LEVEL3 = "/pub/himawari/L3/ARP/030/";
+    String AREOSOL_PROPERTY_LEVEL3 = "/pub/himawari/L3/ARP/031/";
 
     /**
      * user & paword &host

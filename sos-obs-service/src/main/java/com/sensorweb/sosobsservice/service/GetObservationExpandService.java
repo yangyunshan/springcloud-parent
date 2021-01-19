@@ -16,8 +16,15 @@ public class GetObservationExpandService {
     /**
      * 查询所有的观测数据
      */
-    public List<Observation> getAllObservation() {
-        return observationMapper.selectAll();
+    public int getAllObservationNum() {
+        return observationMapper.selectNum();
+    }
+
+    /**
+     * 分页查询观测数据
+     */
+    public List<Observation> getObservationByPage(int pageNum, int pageSize) {
+        return observationMapper.selectByPage(pageNum, pageSize);
     }
 
     /**

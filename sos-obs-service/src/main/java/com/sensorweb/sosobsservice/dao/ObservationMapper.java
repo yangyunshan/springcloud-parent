@@ -16,7 +16,8 @@ public interface ObservationMapper {
 
     int deleteByProcedureId(String procedureId);
 
-    List<Observation> selectAll();
+    int selectNum();
+    List<Observation> selectByPage(@Param("pageNum") int pageNum, @Param("pageSize") int pageSize);
     List<Observation> selectByProcedureId(String procedureId);
     List<Observation> selectByObsType(String type);
     List<Observation> selectByObsProp(String obsProperty);

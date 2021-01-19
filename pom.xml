@@ -24,7 +24,6 @@
         <module>eureka-server01</module>
         <module>eureka-server02</module>
         <module>eureka-server03</module>
-        <module>config-server</module>
         <module>swe-common-core</module>
         <module>sensorml-core</module>
         <module>swe-common-om</module>
@@ -41,6 +40,8 @@
         <module>datacenter-product-service</module>
         <module>datacenter-indicator-service</module>
         <module>datacenter-gateway</module>
+        <module>datacenter-gee-service</module>
+        <module>datacenter-auth2-service</module>
     </modules>
 
     <dependencies>
@@ -92,19 +93,6 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-boot-starter</artifactId>
             <version>3.0.0</version>
-        </dependency>
-<!--        Spring Cloud config Client-->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-bus-amqp</artifactId>
         </dependency>
         <!--        dom4j-->
         <dependency>

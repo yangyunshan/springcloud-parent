@@ -13,12 +13,12 @@ import java.util.Map;
 @FeignClient(value = "sos-obs-service")
 public interface ObsFeignClient {
 
-    @DeleteMapping("observation/{id}")
+    @DeleteMapping("delete/{id}")
     int deleteObservationById(@PathVariable("id") String procedureId);
 
-    @PostMapping("observation/insertData")
+    @PostMapping("insertData")
     int insertData(@RequestBody Observation observation);
 
-    @PostMapping("observation/insertDataBatch")
+    @PostMapping("insertDataBatch")
     int insertDataBatch(@RequestBody List<Observation> observations);
 }

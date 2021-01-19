@@ -23,7 +23,7 @@ public class DeleteObsController {
     private DeleteObsService deleteObsService;
 
     @ApiOperation("通过观测数据id删除观测数据")
-    @DeleteMapping("observation/delete/{id}")
+    @DeleteMapping("delete/{id}")
     public int deleteObservationById(@ApiParam(name = "procedureId", value = "待删除的观测数据id") @PathVariable("id") String procedureId) {
         return deleteObsService.deleteObservationById(procedureId);
     }

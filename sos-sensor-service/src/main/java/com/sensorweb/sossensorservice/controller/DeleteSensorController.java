@@ -23,20 +23,14 @@ public class DeleteSensorController {
     private DeleteSensorService deleteSensorService;
 
     @ApiOperation("删除传感器,同时删除该传感器的所有观测数据,如果为平台,则删除平台下所有的传感器")
-    @DeleteMapping("/sensor/delete/{id}")
-    public Map<String, Object> deleteSensorById(@ApiParam(name = "procedureId", value = "传感器或平台id") @PathVariable("id") String procedureId) {
-        Map<String, Object> res = new HashMap<>();
+    @DeleteMapping("delete/{id}")
+    public boolean deleteSensorById(@ApiParam(name = "procedureId", value = "传感器或平台id") @PathVariable("id") String procedureId) {
+        boolean flag = false;
         try {
-            boolean flag = deleteSensorService.deleteSensor(procedureId);
-            if (flag) {
-                res.put("status", "success");
-            } else {
-                res.put("status", "failed");
-            }
+            flag = deleteSensorService.deleteSensor(procedureId);
         } catch (Exception e) {
             log.info("传感器删除失败");
-            res.put("status", "failed");
         }
-        return res;
+        return flag;
     }
 }

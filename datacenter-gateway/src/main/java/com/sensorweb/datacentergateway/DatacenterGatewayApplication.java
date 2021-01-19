@@ -3,6 +3,7 @@ package com.sensorweb.datacentergateway;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -22,32 +23,5 @@ public class DatacenterGatewayApplication {
     public static void main(String[] args) {
         SpringApplication.run(DatacenterGatewayApplication.class, args);
     }
-
-//    @Bean
-//    public WebFilter corsFilter() {
-//        return (ServerWebExchange ctx, WebFilterChain chain) -> {
-//            ServerHttpRequest request = ctx.getRequest();
-//            if (!CorsUtils.isCorsRequest(request)) {
-//                return chain.filter(ctx);
-//            }
-//            HttpHeaders requestHeaders = request.getHeaders();
-//            ServerHttpResponse response = ctx.getResponse();
-//            HttpMethod requestMethod = requestHeaders.getAccessControlRequestMethod();
-//            HttpHeaders headers = response.getHeaders();
-//            headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, requestHeaders.getOrigin());
-//            headers.addAll(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, requestHeaders.getAccessControlRequestHeaders());
-//            if (requestMethod != null) {
-//                headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, requestMethod.name());
-//            }
-//            headers.add(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
-//            headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "ALL");
-//            headers.add(HttpHeaders.ACCESS_CONTROL_MAX_AGE, "MAX_AGE");
-//            if (request.getMethod() == HttpMethod.OPTIONS) {
-//                response.setStatusCode(HttpStatus.OK);
-//                return Mono.empty();
-//            }
-//            return chain.filter(ctx);
-//        };
-//    }
 
 }

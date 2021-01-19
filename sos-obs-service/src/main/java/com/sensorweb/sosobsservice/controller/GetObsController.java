@@ -7,7 +7,9 @@ import com.sensorweb.sosobsservice.service.GetObservationService;
 import com.sensorweb.sosobsservice.util.ObsConstant;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +27,7 @@ public class GetObsController implements ObsConstant {
     private GetObservationExpandService getObservationExpandService;
 
     @ApiOperation("查询近一年各月的观测数据接入数量")
-    @GetMapping(path = "observation/getObservationCountOfMonth")
+    @GetMapping(path = "getObservationCountOfMonth")
     public List<Map<String, Integer>> getObservationCountOfMonth() {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(ZoneId.of("Asia/Shanghai")));
         List<Map<String, Integer>> res = new ArrayList<>();
@@ -47,10 +49,17 @@ public class GetObsController implements ObsConstant {
         return res;
     }
 
-    @ApiOperation("查询所有的传感器数据")
-    @GetMapping(path = "observation/getObservation")
-    public List<Observation> getObservation() {
-        return getObservationExpandService.getAllObservation();
+    @ApiOperation("查询所有的传感器数据量")
+    @GetMapping(path = "getObservationNum")
+    public int getObservationNum() {
+        return getObservationExpandService.getAllObservationNum();
+    }
+
+    @ApiOperation("分页查询观测数据")
+    @GetMapping(path = "getObservationByPage")
+    public List<Observation> getObservationByPage(@ApiParam(name = "pageNum", value = "当前页码") @Param("pageNum") int pageNum,
+                                                  @ApiParam(name = "pageSize", value = "每页的数据条目数") @Param("pageSize") int pageSize) {
+        return getObservationExpandService.getObservationByPage(pageNum, pageSize);
     }
 
 }

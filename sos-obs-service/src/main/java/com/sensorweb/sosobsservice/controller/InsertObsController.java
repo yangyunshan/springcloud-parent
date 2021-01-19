@@ -32,7 +32,7 @@ public class InsertObsController implements ObsConstant {
     private InsertObservationService insertObservationService;
 
     @ApiOperation("通过OM观测数据文档,接入观测数据")
-    @PostMapping(path = "observation/insertObservation")
+    @PostMapping(path = "insertObservation")
     public Map<String, Object> insertObservation(@ApiParam(name = "content", value = "观测数据xml文档内容") String content) {
         Map<String, Object> res = new HashMap<>();
         if (StringUtils.isBlank(content)) {
@@ -57,13 +57,13 @@ public class InsertObsController implements ObsConstant {
     }
 
     @ApiOperation("插入自定义Observation对象数据")
-    @PostMapping("observation/insertData")
+    @PostMapping("insertData")
     public int insertData(@ApiParam(name = "observation", value = "自定义Observation对象") @RequestBody Observation observation) {
         return insertObservationService.insertObservationData(observation);
     }
 
     @ApiOperation("批量插入自定义Observation对象数据")
-    @PostMapping("observation/insertDataBatch")
+    @PostMapping("insertDataBatch")
     public int insertDataBatch(@ApiParam(name = "observations", value = "批量的自定义Observation对象") @RequestBody List<Observation> observations) {
         return insertObservationService.insertObservationDataBatch(observations);
     }

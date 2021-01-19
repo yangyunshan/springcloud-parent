@@ -11,7 +11,7 @@ import java.util.List;
 @FeignClient(value = "sos-obs-service")
 public interface ObsFeignClient {
 
-    @DeleteMapping("observation/{id}")
+    @DeleteMapping("delete/{id}")
     int deleteObservationById(@PathVariable("id") String procedureId);
 
 }

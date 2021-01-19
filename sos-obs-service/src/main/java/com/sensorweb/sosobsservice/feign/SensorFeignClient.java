@@ -9,9 +9,9 @@ import java.util.Map;
 @FeignClient(value = "sos-sensor-service")
 public interface SensorFeignClient {
 
-    @GetMapping(path = "sensor/getAllProcedureInfo")
+    @GetMapping(path = "getAllProcedureInfo")
     Map<String, Object> getAllProcedure();
 
-    @GetMapping(value = "sensor/isExist/{id}")
+    @GetMapping(value = "isExist/{id}")
     boolean isExist(@PathVariable("id") String procedureId);
 }

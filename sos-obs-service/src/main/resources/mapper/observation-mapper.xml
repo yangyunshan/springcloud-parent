@@ -29,9 +29,15 @@
         WHERE proc_id = #{procedureId}
     </delete>
 
-    <select id="selectAll" resultMap="observation">
+    <select id="selectNum" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM observation
+    </select>
+
+    <select id="selectByPage" resultMap="observation">
         SELECT <include refid="selectFields"></include>
         FROM observation
+        LIMIT #{pageSize} OFFSET (#{pageNum}-1)*(#{pageSize})
     </select>
 
     <select id="selectByProcedureId" resultMap="observation">
