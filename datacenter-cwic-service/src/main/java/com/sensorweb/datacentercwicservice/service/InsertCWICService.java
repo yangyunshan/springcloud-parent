@@ -16,6 +16,7 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -36,6 +37,7 @@ import java.util.List;
 
 @Slf4j
 @Service
+@EnableScheduling
 public class InsertCWICService implements CWICConstant {
     private final  String procedureId = "urn:JMA:def:identifier:OGC:2.0:cwic";
 
@@ -325,7 +327,7 @@ public class InsertCWICService implements CWICConstant {
         return true;
     }
 
-    @Scheduled(cron = "0 0 0/12 * * ? ")//0点开始,每12小时执行一次
+    @Scheduled(cron = "0 30 19/12 * * ? ")//0点开始,每12小时执行一次
     public void insertDataByDay() {
         String lowerCorner = "90.55 24.5";
         String upperCorner = "112.417 34.75";

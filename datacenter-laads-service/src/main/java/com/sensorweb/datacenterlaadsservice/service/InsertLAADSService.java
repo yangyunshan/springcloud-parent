@@ -14,6 +14,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -33,6 +34,7 @@ import java.util.List;
 
 @Slf4j
 @Service
+@EnableScheduling
 public class InsertLAADSService implements LAADSConstant {
     private final  String procedureId = "urn:JMA:def:identifier:OGC:2.0:laads";
 
@@ -55,9 +57,9 @@ public class InsertLAADSService implements LAADSConstant {
     public void insertDataByDay() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
         Calendar calendar = Calendar.getInstance();
-        String start = format.format(calendar.getTime());
+        String stop = format.format(calendar.getTime());
         calendar.add(Calendar.DATE,-1);
-        String stop = format.format(calendar.getTime()).replace("00:00:00", "23:59:59");
+        String start = format.format(calendar.getTime()).replace("00:00:00", "23:59:59");
         String bbox = "90.55,24.5,112.417,34.75";//长江流域经纬度范围
         new Thread(new Runnable() {
             @Override

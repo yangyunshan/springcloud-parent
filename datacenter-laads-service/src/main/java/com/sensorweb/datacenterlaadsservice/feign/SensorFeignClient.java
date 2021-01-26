@@ -11,6 +11,6 @@ public interface SensorFeignClient {
     @GetMapping(path = "sensor/getAllProcedureInfo")
     Map<String, Object> getAllProcedure();
 
-    @GetMapping(value = "sensor/isExist/{id}")
+    @GetMapping(value = "isExist/{id}")
     boolean isExist(@PathVariable("id") String procedureId);
 }

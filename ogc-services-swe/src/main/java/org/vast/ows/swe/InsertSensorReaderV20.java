@@ -57,7 +57,7 @@ public abstract class InsertSensorReaderV20<RequestType extends InsertSensorRequ
         }
         
         // check format is supported
-        if (!val.equals(OGCRegistry.getNamespaceURI(SMLUtils.SENSORML, "2.0")))
+        if (!val.equalsIgnoreCase(OGCRegistry.getNamespaceURI(SMLUtils.SENSORML, "2.0")))
             throw new OWSException(OWSException.invalid_param_code, "procedureDescription", "Unsupported format: " + val);
             
         // read SensorML procedure description

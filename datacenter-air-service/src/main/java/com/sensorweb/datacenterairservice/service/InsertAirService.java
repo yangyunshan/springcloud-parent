@@ -33,7 +33,6 @@ import java.util.List;
 
 @Slf4j
 @Service
-@Configuration
 @EnableScheduling
 public class InsertAirService extends Thread implements AirConstant {
     @Autowired
@@ -97,6 +96,7 @@ public class InsertAirService extends Thread implements AirConstant {
                 AirQualityHour airQualityHour = (AirQualityHour)o;
                 int status = airQualityHourMapper.insertData(airQualityHour);
                 if (status>0) {
+                    System.out.println("接入Air_Quality_Hourly成功：" + airQualityHour.getStationName());
                     Observation observation = new Observation();
                     observation.setProcedureId(airQualityHour.getUniqueCode());
                     observation.setObsTime(airQualityHour.getQueryTime());
@@ -106,12 +106,21 @@ public class InsertAirService extends Thread implements AirConstant {
                     observation.setEndTime(getResultTime(airQualityHour));
                     observation.setBeginTime(getResultTime(airQualityHour).minusSeconds(60*60));
                     observation.setOutId(airQualityHour.getId());
-                    boolean flag = sensorFeignClient.isExist(observation.getProcedureId());
+                    boolean flag = false;
+                    try {
+                        flag = sensorFeignClient.isExist(observation.getProcedureId());
+                        System.out.println(flag);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                     if (flag) {
+                        System.out.println(observation.getProcedureId() + " :is existed");
                         obsFeignClient.insertData(observation);
+                        System.out.println("接入Observation成功：" + airQualityHour.getStationName());
                     } else {
                         log.info("procedure:" + observation.getProcedureId() + "不存在");
-                        throw new Exception("procedure: " + observation.getProcedureId() + "不存在");
+//                        throw new Exception("procedure: " + observation.getProcedureId() + "不存在");
                     }
                 }
             } else {

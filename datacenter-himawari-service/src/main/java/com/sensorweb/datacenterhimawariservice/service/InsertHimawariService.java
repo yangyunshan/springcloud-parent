@@ -23,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.time.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -45,31 +47,58 @@ public class InsertHimawariService implements HimawariConstant {
     @Autowired
     private ObsFeignClient obsFeignClient;
 
+    //存储因更新时间错开导致的未能及时接入的数据时间
+    private static final List<LocalDateTime> temp = new ArrayList<>();
+
     /**
      * 每隔一个小时执行一次，为了以小时为单位接入数据
      */
     @Scheduled(cron = "00 35 * * * ?")//每小时的35分00秒执行一次(本来是每小时的30分数据更新一次，但是由于数据量的关系，可能造成在半点的时候数据并没有完成上传而导致的获取数据失败，所以这里提前半个小时，)
     public void insertDataByHour() {
         LocalDateTime dateTime = LocalDateTime.now(ZoneId.of("UTC"));
-
+        //接入因更新时间错开导致的未能及时接入的数据时间
+        if (temp.size()>0) {
+            for (int i=temp.size(); i>0; i--) {
+                try {
+                    insertData(temp.get(i-1));
+                    temp.remove(i-1);
+                } catch (Exception e) {
+                    log.info(e.getMessage());
+                }
+            }
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {
                 int count = 0;
                 boolean flag = true;
+                LocalDateTime time = dateTime;
                 while (flag && count<10) {
+                    int year = time.getYear();
+                    Month month = time.getMonth();
+                    String monthValue = month.getValue()<10?"0"+month.getValue():month.getValue()+"";
+                    String day = time.getDayOfMonth()<10?"0"+time.getDayOfMonth():time.getDayOfMonth()+"";
+                    String hour = time.getHour()<10?"0"+time.getHour():time.getHour()+"";
+                    String minute = time.getMinute()<10?"0"+time.getMinute():time.getMinute()+"";
+                    String fileName = getName(year+"", monthValue, day, hour, minute);
+                    if (himawariMapper.selectByName(fileName)!=null) {
+                        log.info("数据已存在");
+                        return;
+                    }
                     try {
-                        flag = !insertData(dateTime);
+                        flag = !insertData(time);
                         if (!flag) {
-                            log.info("Himawari接入时间: " + dateTime + "Status: Success");
-                            System.out.println("Himawari接入时间: " + dateTime + "Status: Success");
+                            log.info("Himawari接入时间: " + time + "Status: Success");
                         }
+                        time = time.minusHours(1);
                         count++;
                         Thread.sleep(2 * 60 * 1000);
                     } catch (Exception e) {
                         log.error(e.getMessage());
-                        System.out.println("Himawari接入时间: " + dateTime + "Status: Fail");
                     }
+                }
+                if (count==10) {
+                    temp.add(time);
                 }
             }
         }).start();
@@ -81,44 +110,41 @@ public class InsertHimawariService implements HimawariConstant {
      */
     @Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean insertData(LocalDateTime dateTime) throws Exception {
-        while (dateTime.isBefore(LocalDateTime.now(ZoneId.of("UTC")))) {
-            int year = dateTime.getYear();
-            Month month = dateTime.getMonth();
-            String monthValue = month.getValue()<10?"0"+month.getValue():month.getValue()+"";
-            String day = dateTime.getDayOfMonth()<10?"0"+dateTime.getDayOfMonth():dateTime.getDayOfMonth()+"";
-            String hour = dateTime.getHour()<10?"0"+dateTime.getHour():dateTime.getHour()+"";
-            String minute = dateTime.getMinute()<10?"0"+dateTime.getMinute():dateTime.getMinute()+"";
-            Himawari himawari = getData(year+"", monthValue+"", day+"", hour+"",minute+"");
-            if (himawari==null) {
-                log.info("获取Himawari数据失败");
-                return false;
+        int year = dateTime.getYear();
+        Month month = dateTime.getMonth();
+        String monthValue = month.getValue()<10?"0"+month.getValue():month.getValue()+"";
+        String day = dateTime.getDayOfMonth()<10?"0"+dateTime.getDayOfMonth():dateTime.getDayOfMonth()+"";
+        String hour = dateTime.getHour()<10?"0"+dateTime.getHour():dateTime.getHour()+"";
+        String minute = dateTime.getMinute()<10?"0"+dateTime.getMinute():dateTime.getMinute()+"";
+        Himawari himawari = getData(year+"", monthValue, day, hour,minute);
+        if (himawari==null) {
+            log.info("无法获取Himawari数据或数据已存在");
+            return false;
+        }
+        int status = himawariMapper.insertData(himawari);
+        if (status>0) {
+            Observation observation = new Observation();
+            String procedureId = "urn:JMA:def:identifier:OGC:2.0:Himawari-8-components";
+            observation.setProcedureId(procedureId);
+            observation.setObsTime(himawari.getTime());
+            observation.setEndTime(himawari.getTime());
+            observation.setBeginTime(himawari.getTime().minusSeconds(60 * 60));
+            observation.setMapping("himawari");
+            observation.setObsProperty("Himawari:ARP");
+            observation.setType("hdf.nc");
+            observation.setName(himawari.getName());
+            observation.setBbox("-180 -90,180 90");
+            String wkt = "POLYGON((-180 -90,-180 90,180 90,180 -90,-180 -90))";
+            observation.setWkt(wkt);
+            observation.setOutId(himawari.getId());
+            //传感器是否存在
+            boolean flag = sensorFeignClient.isExist(observation.getProcedureId());
+            if (flag) {
+                obsFeignClient.insertData(observation);
+            } else {
+                log.info("procedure: " + observation.getProcedureId() + "不存在");
+                throw new Exception("procedure: " + observation.getProcedureId() + "不存在");
             }
-            int status = himawariMapper.insertData(himawari);
-            if (status>0) {
-                Observation observation = new Observation();
-                String procedureId = "urn:JMA:def:identifier:OGC:2.0:Himawari-8-components";
-                observation.setProcedureId(procedureId);
-                observation.setObsTime(himawari.getTime());
-                observation.setEndTime(himawari.getTime());
-                observation.setBeginTime(himawari.getTime().minusSeconds(60 * 60));
-                observation.setMapping("himawari");
-                observation.setObsProperty("Himawari:ARP");
-                observation.setType("hdf.nc");
-                observation.setName(himawari.getName());
-                observation.setBbox("-180 -90,180 90");
-                String wkt = "POLYGON((-180 -90,-180 90,180 90,180 -90,-180 -90))";
-                observation.setWkt(wkt);
-                observation.setOutId(himawari.getId());
-                //传感器是否存在
-                boolean flag = sensorFeignClient.isExist(observation.getProcedureId());
-                if (flag) {
-                    obsFeignClient.insertData(observation);
-                } else {
-                    log.info("procedure: " + observation.getProcedureId() + "不存在");
-                    throw new Exception("procedure: " + observation.getProcedureId() + "不存在");
-                }
-            }
-            dateTime = dateTime.plusHours(1);
         }
         return true;
     }

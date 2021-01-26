@@ -62,7 +62,7 @@ public class InsertSensorWriterV20<RequestType extends InsertSensorRequest> exte
         {
 		    // check format is supported
 		    String format = request.getProcedureDescriptionFormat();
-		    if (!format.equals(OGCRegistry.getNamespaceURI(SMLUtils.SENSORML, "2.0")))
+		    if (!format.equalsIgnoreCase(OGCRegistry.getNamespaceURI(SMLUtils.SENSORML, "2.0")))
 		        throw new OWSException("Unsupported format: " + request.getProcedureDescriptionFormat());
 	            
 		    Element procedureElt = dom.addElement(rootElt, "swes:procedureDescription");

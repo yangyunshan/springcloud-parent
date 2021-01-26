@@ -87,12 +87,12 @@ public class InsertSensorReaderV20 extends org.vast.ows.swe.InsertSensorReaderV2
 		super.checkParameters(request, report, OWSUtils.SOS);
         
         // need observation type
-        if (request.getObservationTypes().isEmpty())
-            report.add(new OWSException(OWSException.missing_param_code, "observationType"));
-        
-        // need foi type
-        if (request.getFoiTypes().isEmpty())
-            report.add(new OWSException(OWSException.missing_param_code, "featureOfInterestType"));
+//        if (request.getObservationTypes().isEmpty())
+//            report.add(new OWSException(OWSException.missing_param_code, "observationType"));
+//
+//        // need foi type
+//        if (request.getFoiTypes().isEmpty())
+//            report.add(new OWSException(OWSException.missing_param_code, "featureOfInterestType"));
         
         // procedure
         if (request.getProcedureDescription() == null)

@@ -31,7 +31,7 @@ public class InsertSensorController implements SensorConstant {
      * @throws Exception
      */
     @ApiOperation("注册传感器,通过xml文件注册")
-    @PostMapping(path = "registry")
+    @PostMapping(path = "registryByFile")
     public Map<String, String> insertSensor(@ApiParam(name = "files", value = "文件数组") @RequestParam("files") MultipartFile[] files) {
         Map<String, String> res = new HashMap<>();
         if (files!=null && files.length>0) {

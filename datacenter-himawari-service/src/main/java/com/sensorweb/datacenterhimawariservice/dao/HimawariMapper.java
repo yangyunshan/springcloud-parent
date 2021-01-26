@@ -13,4 +13,5 @@ public interface HimawariMapper {
     int insertDataBatch(List<Himawari> himawaris);
 
     Himawari selectById(int id);
+    Himawari selectByName(String name);
 }

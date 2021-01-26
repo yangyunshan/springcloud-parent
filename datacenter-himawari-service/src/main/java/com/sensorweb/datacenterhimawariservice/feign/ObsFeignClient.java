@@ -17,7 +17,7 @@ public interface ObsFeignClient {
     void deleteObservationById(@PathVariable("id") String procedureId);
 
     @PostMapping("insertData")
-    Map<String, Object> insertData(@RequestBody Observation observation);
+    int insertData(@RequestBody Observation observation);
 
     @PostMapping("insertDataBatch")
     int insertDataBatch(@RequestBody List<Observation> observations);

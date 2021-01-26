@@ -9,6 +9,7 @@ import org.apache.commons.net.ftp.FTPReply;
 import java.io.*;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 @Slf4j
 public class FTPUtils {
@@ -83,7 +84,6 @@ public class FTPUtils {
             //获取目录下文件集合
             ftpClient.enterLocalPassiveMode();
             FTPFile[] files = ftpClient.listFiles();
-
             for (FTPFile file : files) {
                 //取得指定文件并下载
                 if (file.getName().equals(fileName)) {

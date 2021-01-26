@@ -134,7 +134,7 @@ public class InsertSensorService {
     }
 
     /**
-     * 解析InsertSensor请求文档，将其中的snesorml内容写入文件保存，返回文件路径
+     * 解析InsertSensor请求文档，将其中的sensorml内容写入文件保存，返回文件路径
      * @param insertSensorRequest
      * @return
      * @throws OWSException
@@ -304,6 +304,7 @@ public class InsertSensorService {
             procedure.setDescription(insertSensorRequest.getProcedureDescription().getDescription());
             procedure.setDescriptionFile(getSensorML(insertSensorRequest));
             procedure.setName(insertSensorRequest.getProcedureDescription().getName());
+            procedure.setStatus(1);
 
             //判断是否为平台还是传感器
             if (insertSensorRequest.getProcedureDescription().getQName().getLocalPart().equals("PhysicalSystem")) {

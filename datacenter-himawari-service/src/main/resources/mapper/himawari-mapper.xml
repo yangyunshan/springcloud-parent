@@ -16,7 +16,7 @@
         VALUES (#{name}, #{time}, #{area}, #{pixelNum}, #{lineNum}, #{url}, #{localPath})
     </insert>
 
-    <insert id="insertData" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertDataBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO himawari (<include refid="insertFields"></include>)
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
@@ -28,6 +28,12 @@
         SELECT <include refid="selectFields"></include>
         FROM himawari
         WHERE id = #{id}
+    </select>
+
+    <select id="selectByName" resultMap="himawari">
+        SELECT <include refid="selectFields"></include>
+        FROM himawari
+        WHERE h_name = #{name}
     </select>
 
     <resultMap id="himawari" type="Himawari">
