@@ -61,41 +61,9 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
         }
         //2.token为空拒绝访问
         String token = request.getHeaders().getFirst("Authorization");
-        if (StringUtils.isBlank(token)) {
-            return Mono.just(new AuthorizationDecision(false));
+        if (!StringUtils.isBlank(token)) {
+            return Mono.just(new AuthorizationDecision(true));
         }
-        List<String> paths = new ArrayList<>();
-        //解析token
-        try {
-            String realToken = token.replace("Bearer ", "");
-            JWSObject jwsObject = JWSObject.parse(realToken);
-            String jsonStr = jwsObject.getPayload().toString();
-            JSONObject jsonObject = JSONObject.parseObject(jsonStr);
-            BigInteger epoch = jsonObject.getBigInteger("exp");
-            Date date = new Date(epoch.longValue() * 1000);
-            if (date.before(new Date(System.currentTimeMillis()))) {
-                System.out.println("过期");
-                return Mono.just(new AuthorizationDecision(false));
-            }
-            JSONArray jsonArray = jsonObject.getJSONArray("authorities");
-            Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
-            for (int i=0; i<jsonArray.size(); i++) {
-                authorities.add(new SimpleGrantedAuthority(jsonArray.getString(i)));
-            }
-            if (authorities.size()>0) {
-                for (GrantedAuthority authority:authorities) {
-                    String role = authority.getAuthority();
-                    List<String> temp = userService.getPathByRoleName(role);
-                    if (temp!=null && temp.size()>0) {
-                        paths.addAll(temp);
-                    }
-                }
-            }
-            return Mono.just(new AuthorizationDecision(checkPath(paths, path)));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
         return Mono.just(new AuthorizationDecision(false));
     }
 
