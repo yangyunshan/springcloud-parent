@@ -43,4 +43,19 @@ public interface AirConstant {
      * 湖北省环境监测站url请求常量---getLast40DaysData
      */
     String GET_LAST_40_DAYS_DATA = "http://59.172.208.250:9400/AirPulish/AuditData.asmx/GetLast40DaysData";
+
+    /**
+     * 全国空气质量监测请求url---getAllCountryData
+     */
+    String Get_All_Country_Hourly_DATA = "http://www.pm25.in/api/querys/all_cities.json";
+    String token = "k1kBkDzD4vWjkH9Wx4bf";
+
+    /**
+     * 台湾EPA空气质量数据
+     */
+    String TW_EPA_URL = "https://pm25.lass-net.org/data/last-all-epa.json.gz";
+
+    String BAIDU_ADDRESS_API = "http://api.map.baidu.com/geocoding/v3/";
+
+    String BAIDU_AK = "DUljkTDcLCQ00d6ZofaN8FgTnRf4YWAu";
 }

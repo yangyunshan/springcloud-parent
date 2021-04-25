@@ -22,4 +22,8 @@ public interface ProductMapper {
     int updateByPrimaryKeySelective(Product record);
 
     int updateByPrimaryKey(Product record);
+
+    List<Product> selectByattribute(@Param("productName") String name, @Param("timeResolution") String time, @Param("spatialResolution") String spatial, @Param("dimension") String dim);
+
+    List<Product> selectAllproduct();
 }

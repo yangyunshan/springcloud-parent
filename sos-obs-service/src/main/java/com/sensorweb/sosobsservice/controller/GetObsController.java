@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -60,6 +61,21 @@ public class GetObsController implements ObsConstant {
     public List<Observation> getObservationByPage(@ApiParam(name = "pageNum", value = "当前页码") @Param("pageNum") int pageNum,
                                                   @ApiParam(name = "pageSize", value = "每页的数据条目数") @Param("pageSize") int pageSize) {
         return getObservationExpandService.getObservationByPage(pageNum, pageSize);
+    }
+
+    @GetMapping("getObservationByConditions")
+    public List<Observation> getObservationByConditions(String bbox, String timeBegin, String timeEnd, String type) {
+        List<Observation> res = new ArrayList<>();
+        try {
+            LocalDateTime begin = DataCenterUtils.string2LocalDateTime(timeBegin);
+            LocalDateTime end = DataCenterUtils.string2LocalDateTime(timeEnd);
+            Instant start = begin.atZone(ZoneId.of("Asia/Shanghai")).toInstant();
+            Instant stop = end.atZone(ZoneId.of("Asia/Shanghai")).toInstant();
+            res = getObservationExpandService.getObservationByConditions(bbox, start, stop, type);
+        } catch (Exception e) {
+            log.debug(e.getMessage());
+        }
+        return res;
     }
 
 }

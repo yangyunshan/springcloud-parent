@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sensorweb.datacenterairservice.dao.ChinaAirQualityHourMapper" >
+  <resultMap id="BaseResultMap" type="com.sensorweb.datacenterairservice.entity.ChinaAirQualityHour" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="aqi" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="area" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="co" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="co_24h" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="no2" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="no2_24h" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="o3" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="o3_24h" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="o3_8h" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="o3_8h_24h" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="pm10" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="pm10_24h" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="pm2_5" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="pm2_5_24h" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="position_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="primary_pollutant" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="quality" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="so2" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="so2_24h" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="station_code" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="time_point" jdbcType="VARCHAR" javaType="java.lang.String" />
+    </constructor>
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, aqi, area, co, co_24h, no2, no2_24h, o3, o3_24h, o3_8h, o3_8h_24h, pm10, pm10_24h, 
+    pm2_5, pm2_5_24h, position_name, primary_pollutant, quality, so2, so2_24h, station_code, 
+    time_point
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.sensorweb.datacenterairservice.entity.ChinaAirQualityHourExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from china_2020
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from china_2020
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from china_2020
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.sensorweb.datacenterairservice.entity.ChinaAirQualityHourExample" >
+    delete from china_2020
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.sensorweb.datacenterairservice.entity.ChinaAirQualityHour" useGeneratedKeys="true" keyProperty="id">
+    insert into china_2020 (aqi, area,
+      co, co_24h, no2, no2_24h, 
+      o3, o3_24h, o3_8h, o3_8h_24h, 
+      pm10, pm10_24h, pm2_5, 
+      pm2_5_24h, position_name, primary_pollutant, 
+      quality, so2, so2_24h, 
+      station_code, time_point)
+    values (#{aqi,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR},
+      #{co,jdbcType=VARCHAR}, #{co24h,jdbcType=VARCHAR}, #{no2,jdbcType=VARCHAR}, #{no224h,jdbcType=VARCHAR}, 
+      #{o3,jdbcType=VARCHAR}, #{o324h,jdbcType=VARCHAR}, #{o38h,jdbcType=VARCHAR}, #{o38h24h,jdbcType=VARCHAR}, 
+      #{pm10,jdbcType=VARCHAR}, #{pm1024h,jdbcType=VARCHAR}, #{pm25,jdbcType=VARCHAR}, 
+      #{pm2524h,jdbcType=VARCHAR}, #{positionName,jdbcType=VARCHAR}, #{primaryPollutant,jdbcType=VARCHAR}, 
+      #{quality,jdbcType=VARCHAR}, #{so2,jdbcType=VARCHAR}, #{so224h,jdbcType=VARCHAR}, 
+      #{stationCode,jdbcType=VARCHAR}, #{timePoint,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sensorweb.datacenterairservice.entity.ChinaAirQualityHour" useGeneratedKeys="true" keyProperty="id">
+    insert into china_2020
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="aqi != null" >
+        aqi,
+      </if>
+      <if test="area != null" >
+        area,
+      </if>
+      <if test="co != null" >
+        co,
+      </if>
+      <if test="co24h != null" >
+        co_24h,
+      </if>
+      <if test="no2 != null" >
+        no2,
+      </if>
+      <if test="no224h != null" >
+        no2_24h,
+      </if>
+      <if test="o3 != null" >
+        o3,
+      </if>
+      <if test="o324h != null" >
+        o3_24h,
+      </if>
+      <if test="o38h != null" >
+        o3_8h,
+      </if>
+      <if test="o38h24h != null" >
+        o3_8h_24h,
+      </if>
+      <if test="pm10 != null" >
+        pm10,
+      </if>
+      <if test="pm1024h != null" >
+        pm10_24h,
+      </if>
+      <if test="pm25 != null" >
+        pm2_5,
+      </if>
+      <if test="pm2524h != null" >
+        pm2_5_24h,
+      </if>
+      <if test="positionName != null" >
+        position_name,
+      </if>
+      <if test="primaryPollutant != null" >
+        primary_pollutant,
+      </if>
+      <if test="quality != null" >
+        quality,
+      </if>
+      <if test="so2 != null" >
+        so2,
+      </if>
+      <if test="so224h != null" >
+        so2_24h,
+      </if>
+      <if test="stationCode != null" >
+        station_code,
+      </if>
+      <if test="timePoint != null" >
+        time_point,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="aqi != null" >
+        #{aqi,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="co != null" >
+        #{co,jdbcType=VARCHAR},
+      </if>
+      <if test="co24h != null" >
+        #{co24h,jdbcType=VARCHAR},
+      </if>
+      <if test="no2 != null" >
+        #{no2,jdbcType=VARCHAR},
+      </if>
+      <if test="no224h != null" >
+        #{no224h,jdbcType=VARCHAR},
+      </if>
+      <if test="o3 != null" >
+        #{o3,jdbcType=VARCHAR},
+      </if>
+      <if test="o324h != null" >
+        #{o324h,jdbcType=VARCHAR},
+      </if>
+      <if test="o38h != null" >
+        #{o38h,jdbcType=VARCHAR},
+      </if>
+      <if test="o38h24h != null" >
+        #{o38h24h,jdbcType=VARCHAR},
+      </if>
+      <if test="pm10 != null" >
+        #{pm10,jdbcType=VARCHAR},
+      </if>
+      <if test="pm1024h != null" >
+        #{pm1024h,jdbcType=VARCHAR},
+      </if>
+      <if test="pm25 != null" >
+        #{pm25,jdbcType=VARCHAR},
+      </if>
+      <if test="pm2524h != null" >
+        #{pm2524h,jdbcType=VARCHAR},
+      </if>
+      <if test="positionName != null" >
+        #{positionName,jdbcType=VARCHAR},
+      </if>
+      <if test="primaryPollutant != null" >
+        #{primaryPollutant,jdbcType=VARCHAR},
+      </if>
+      <if test="quality != null" >
+        #{quality,jdbcType=VARCHAR},
+      </if>
+      <if test="so2 != null" >
+        #{so2,jdbcType=VARCHAR},
+      </if>
+      <if test="so224h != null" >
+        #{so224h,jdbcType=VARCHAR},
+      </if>
+      <if test="stationCode != null" >
+        #{stationCode,jdbcType=VARCHAR},
+      </if>
+      <if test="timePoint != null" >
+        #{timePoint,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.sensorweb.datacenterairservice.entity.ChinaAirQualityHourExample" resultType="java.lang.Integer" >
+    select count(*) from china_2020
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update china_2020
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.aqi != null" >
+        aqi = #{record.aqi,jdbcType=VARCHAR},
+      </if>
+      <if test="record.area != null" >
+        area = #{record.area,jdbcType=VARCHAR},
+      </if>
+      <if test="record.co != null" >
+        co = #{record.co,jdbcType=VARCHAR},
+      </if>
+      <if test="record.co24h != null" >
+        co_24h = #{record.co24h,jdbcType=VARCHAR},
+      </if>
+      <if test="record.no2 != null" >
+        no2 = #{record.no2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.no224h != null" >
+        no2_24h = #{record.no224h,jdbcType=VARCHAR},
+      </if>
+      <if test="record.o3 != null" >
+        o3 = #{record.o3,jdbcType=VARCHAR},
+      </if>
+      <if test="record.o324h != null" >
+        o3_24h = #{record.o324h,jdbcType=VARCHAR},
+      </if>
+      <if test="record.o38h != null" >
+        o3_8h = #{record.o38h,jdbcType=VARCHAR},
+      </if>
+      <if test="record.o38h24h != null" >
+        o3_8h_24h = #{record.o38h24h,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pm10 != null" >
+        pm10 = #{record.pm10,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pm1024h != null" >
+        pm10_24h = #{record.pm1024h,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pm25 != null" >
+        pm2_5 = #{record.pm25,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pm2524h != null" >
+        pm2_5_24h = #{record.pm2524h,jdbcType=VARCHAR},
+      </if>
+      <if test="record.positionName != null" >
+        position_name = #{record.positionName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.primaryPollutant != null" >
+        primary_pollutant = #{record.primaryPollutant,jdbcType=VARCHAR},
+      </if>
+      <if test="record.quality != null" >
+        quality = #{record.quality,jdbcType=VARCHAR},
+      </if>
+      <if test="record.so2 != null" >
+        so2 = #{record.so2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.so224h != null" >
+        so2_24h = #{record.so224h,jdbcType=VARCHAR},
+      </if>
+      <if test="record.stationCode != null" >
+        station_code = #{record.stationCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.timePoint != null" >
+        time_point = #{record.timePoint,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update china_2020
+    set id = #{record.id,jdbcType=INTEGER},
+      aqi = #{record.aqi,jdbcType=VARCHAR},
+      area = #{record.area,jdbcType=VARCHAR},
+      co = #{record.co,jdbcType=VARCHAR},
+      co_24h = #{record.co24h,jdbcType=VARCHAR},
+      no2 = #{record.no2,jdbcType=VARCHAR},
+      no2_24h = #{record.no224h,jdbcType=VARCHAR},
+      o3 = #{record.o3,jdbcType=VARCHAR},
+      o3_24h = #{record.o324h,jdbcType=VARCHAR},
+      o3_8h = #{record.o38h,jdbcType=VARCHAR},
+      o3_8h_24h = #{record.o38h24h,jdbcType=VARCHAR},
+      pm10 = #{record.pm10,jdbcType=VARCHAR},
+      pm10_24h = #{record.pm1024h,jdbcType=VARCHAR},
+      pm2_5 = #{record.pm25,jdbcType=VARCHAR},
+      pm2_5_24h = #{record.pm2524h,jdbcType=VARCHAR},
+      position_name = #{record.positionName,jdbcType=VARCHAR},
+      primary_pollutant = #{record.primaryPollutant,jdbcType=VARCHAR},
+      quality = #{record.quality,jdbcType=VARCHAR},
+      so2 = #{record.so2,jdbcType=VARCHAR},
+      so2_24h = #{record.so224h,jdbcType=VARCHAR},
+      station_code = #{record.stationCode,jdbcType=VARCHAR},
+      time_point = #{record.timePoint,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sensorweb.datacenterairservice.entity.ChinaAirQualityHour" >
+    update china_2020
+    <set >
+      <if test="aqi != null" >
+        aqi = #{aqi,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        area = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="co != null" >
+        co = #{co,jdbcType=VARCHAR},
+      </if>
+      <if test="co24h != null" >
+        co_24h = #{co24h,jdbcType=VARCHAR},
+      </if>
+      <if test="no2 != null" >
+        no2 = #{no2,jdbcType=VARCHAR},
+      </if>
+      <if test="no224h != null" >
+        no2_24h = #{no224h,jdbcType=VARCHAR},
+      </if>
+      <if test="o3 != null" >
+        o3 = #{o3,jdbcType=VARCHAR},
+      </if>
+      <if test="o324h != null" >
+        o3_24h = #{o324h,jdbcType=VARCHAR},
+      </if>
+      <if test="o38h != null" >
+        o3_8h = #{o38h,jdbcType=VARCHAR},
+      </if>
+      <if test="o38h24h != null" >
+        o3_8h_24h = #{o38h24h,jdbcType=VARCHAR},
+      </if>
+      <if test="pm10 != null" >
+        pm10 = #{pm10,jdbcType=VARCHAR},
+      </if>
+      <if test="pm1024h != null" >
+        pm10_24h = #{pm1024h,jdbcType=VARCHAR},
+      </if>
+      <if test="pm25 != null" >
+        pm2_5 = #{pm25,jdbcType=VARCHAR},
+      </if>
+      <if test="pm2524h != null" >
+        pm2_5_24h = #{pm2524h,jdbcType=VARCHAR},
+      </if>
+      <if test="positionName != null" >
+        position_name = #{positionName,jdbcType=VARCHAR},
+      </if>
+      <if test="primaryPollutant != null" >
+        primary_pollutant = #{primaryPollutant,jdbcType=VARCHAR},
+      </if>
+      <if test="quality != null" >
+        quality = #{quality,jdbcType=VARCHAR},
+      </if>
+      <if test="so2 != null" >
+        so2 = #{so2,jdbcType=VARCHAR},
+      </if>
+      <if test="so224h != null" >
+        so2_24h = #{so224h,jdbcType=VARCHAR},
+      </if>
+      <if test="stationCode != null" >
+        station_code = #{stationCode,jdbcType=VARCHAR},
+      </if>
+      <if test="timePoint != null" >
+        time_point = #{timePoint,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sensorweb.datacenterairservice.entity.ChinaAirQualityHour" >
+    update china_2020
+    set aqi = #{aqi,jdbcType=VARCHAR},
+      area = #{area,jdbcType=VARCHAR},
+      co = #{co,jdbcType=VARCHAR},
+      co_24h = #{co24h,jdbcType=VARCHAR},
+      no2 = #{no2,jdbcType=VARCHAR},
+      no2_24h = #{no224h,jdbcType=VARCHAR},
+      o3 = #{o3,jdbcType=VARCHAR},
+      o3_24h = #{o324h,jdbcType=VARCHAR},
+      o3_8h = #{o38h,jdbcType=VARCHAR},
+      o3_8h_24h = #{o38h24h,jdbcType=VARCHAR},
+      pm10 = #{pm10,jdbcType=VARCHAR},
+      pm10_24h = #{pm1024h,jdbcType=VARCHAR},
+      pm2_5 = #{pm25,jdbcType=VARCHAR},
+      pm2_5_24h = #{pm2524h,jdbcType=VARCHAR},
+      position_name = #{positionName,jdbcType=VARCHAR},
+      primary_pollutant = #{primaryPollutant,jdbcType=VARCHAR},
+      quality = #{quality,jdbcType=VARCHAR},
+      so2 = #{so2,jdbcType=VARCHAR},
+      so2_24h = #{so224h,jdbcType=VARCHAR},
+      station_code = #{stationCode,jdbcType=VARCHAR},
+      time_point = #{timePoint,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectById" resultMap="BaseResultMap">
+    SELECT <include refid="selectFields"></include>
+    FROM china_2020
+    WHERE id = #{id}
+  </select>
+</mapper>

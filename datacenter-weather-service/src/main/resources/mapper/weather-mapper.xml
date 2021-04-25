@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sensorweb.datacenterweatherservice.dao.WeatherMapper">
+    <sql id="insertFields">
+        station_id, query_time, precipitation, update_time, pressure, wind_d, wind_p, humidity, temperature, wp, qs
+    </sql>
+
+    <sql id="selectFields">
+        id, station_id, query_time, precipitation, update_time, pressure, wind_d, wind_p, humidity, temperature, wp, qs
+    </sql>
+
+    <insert id="insertData" parameterType="ChinaWeather" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ch_weather (<include refid="insertFields"></include>)
+        VALUES (#{stationId}, #{queryTime}, #{precipitation}, #{updateTime}, #{pressure}, #{windD}, #{windP}, #{humidity}, #{temperature}, #{wp}, #{qs})
+    </insert>
+
+    <insert id="insertDataBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ch_weather (<include refid="insertFields"></include>)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.stationId}, #{item.queryTime}, #{item.precipitation}, #{item.updateTime}, #{item.pressure}, #{item.windD}, #{item.windP}, #{item.humidity}, #{item.temperature}, #{item.wp}, #{item.qs})
+        </foreach>
+    </insert>
+
+    <select id="selectById" resultMap="chinaWeather">
+        SELECT <include refid="selectFields"></include>
+        FROM ch_weather
+        WHERE id = #{id}
+    </select>
+
+
+
+    <resultMap id="chinaWeather" type="ChinaWeather">
+        <id column="id" property="id"/>
+        <result column="station_id" property="stationId"/>
+        <result column="query_time" property="queryTime"/>
+        <result column="precipitation" property="precipitation"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="pressure" property="pressure"/>
+        <result column="wind_d" property="windD"/>
+        <result column="wind_p" property="windP"/>
+        <result column="humidity" property="humidity"/>
+        <result column="temperature" property="temperature"/>
+        <result column="wp" property="wp"/>
+        <result column="qs" property="qs"/>
+    </resultMap>
+
+</mapper>

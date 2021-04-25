@@ -1,6 +1,9 @@
 package com.sensorweb.datacenterairservice.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sensorweb.datacenterairservice.dao.AirQualityHourMapper;
+import com.sensorweb.datacenterairservice.dao.AirStationMapper;
 import com.sensorweb.datacenterairservice.entity.*;
 import com.sensorweb.datacenterairservice.feign.ObsFeignClient;
 import com.sensorweb.datacenterairservice.feign.SensorFeignClient;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.time.Instant;
@@ -37,6 +41,9 @@ import java.util.List;
 public class InsertAirService extends Thread implements AirConstant {
     @Autowired
     private AirQualityHourMapper airQualityHourMapper;
+
+    @Autowired
+    private AirStationMapper airStationMapper;
 
     @Autowired
     private SensorFeignClient sensorFeignClient;
@@ -102,7 +109,7 @@ public class InsertAirService extends Thread implements AirConstant {
                     observation.setObsTime(airQualityHour.getQueryTime());
                     observation.setMapping("air_quality_hourly");
                     observation.setObsProperty("AirQuality");
-                    observation.setType("xml");
+                    observation.setType("hb_air");
                     observation.setEndTime(getResultTime(airQualityHour));
                     observation.setBeginTime(getResultTime(airQualityHour).minusSeconds(60*60));
                     observation.setOutId(airQualityHour.getId());
@@ -120,7 +127,6 @@ public class InsertAirService extends Thread implements AirConstant {
                         System.out.println("接入Observation成功：" + airQualityHour.getStationName());
                     } else {
                         log.info("procedure:" + observation.getProcedureId() + "不存在");
-//                        throw new Exception("procedure: " + observation.getProcedureId() + "不存在");
                     }
                 }
             } else {
@@ -302,29 +308,53 @@ public class InsertAirService extends Thread implements AirConstant {
     }
 
     /**
-     * 将有用地信息输出到文本文件
+     * 将湖北省环境监测站站点注册到数据库
      * @param objects
      */
-    public void writeInfo(List<Object> objects) {
-        StringBuilder sb = new StringBuilder();
+    public boolean insertWHAirStationInfo(List<Object> objects) throws IOException {
+        List<AirStationModel> res = new ArrayList<>();
         if (objects!=null && objects.size()>0) {
             if (objects.get(0) instanceof AirQualityHour) {
                 for (Object object : objects) {
+                    AirStationModel airStationModel = new AirStationModel();
                     AirQualityHour airQualityHour = (AirQualityHour) object;
-                    sb.append("UniqueCode: ").append(airQualityHour.getUniqueCode()).append("\t");
-                    sb.append("StationName: ").append(airQualityHour.getStationName()).append("\t");
-                    sb.append("\n");
+                    airStationModel.setStationId(airQualityHour.getUniqueCode());
+                    airStationModel.setStationName(airQualityHour.getStationName());
+                    JSONObject jsonObject = null;
+                    if (airStationModel.getStationName()!=null) {
+                        jsonObject = getGeoAddress(airStationModel.getStationName());
+                    }
+                    if (jsonObject!=null) {
+                        Object result = jsonObject.get("result");
+                        if (result!=null) {
+                            Object location = ((JSONObject) result).get("location");
+                            airStationModel.setLon(((JSONObject) location).getDoubleValue("lng"));
+                            airStationModel.setLat(((JSONObject) location).getDoubleValue("lat"));
+                        }
+                    }
+                    airStationModel.setStationType("hb_air");
+                    res.add(airStationModel);
                 }
             } else if (objects.get(0) instanceof AirQualityDay) {
                 for (Object object : objects) {
-                    AirQualityDay airQualityDay = (AirQualityDay) object;
-                    sb.append("UniqueCode: ").append(airQualityDay.getUniqueCode()).append("\t");
-                    sb.append("StationName: ").append(airQualityDay.getStationName()).append("\t");
-                    sb.append("\n");
+
                 }
             }
         }
+        int status = airStationMapper.insertDataBatch(res);
+        return status > 0;
+    }
 
-        DataCenterUtils.write2File("/home/yangyunshan/StationInfo.txt", sb.toString());
+    /**
+     * 根据地址获取经纬度信息,转换成JSON对象返回
+     * @param address
+     */
+    public JSONObject getGeoAddress(String address) throws IOException {
+        String param = "address=" + URLEncoder.encode(address, "utf-8") + "&output=json" + "&ak=" + AirConstant.BAIDU_AK;
+        String document = DataCenterUtils.doGet(AirConstant.BAIDU_ADDRESS_API, param);
+        if (document!=null) {
+            return JSON.parseObject(document);
+        }
+        return null;
     }
 }

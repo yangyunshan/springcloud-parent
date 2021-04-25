@@ -56,9 +56,9 @@ public class AuthorizationManager implements ReactiveAuthorizationManager<Author
         if (request.getMethod()== HttpMethod.OPTIONS) {
             return Mono.just(new AuthorizationDecision(true));
         }
-        if (checkPath(permitAll, path)) {
-            return Mono.just(new AuthorizationDecision(true));
-        }
+//        if (checkPath(permitAll, path)) {
+//            return Mono.just(new AuthorizationDecision(true));
+//        }
         //2.token为空拒绝访问
         String token = request.getHeaders().getFirst("Authorization");
         if (!StringUtils.isBlank(token)) {

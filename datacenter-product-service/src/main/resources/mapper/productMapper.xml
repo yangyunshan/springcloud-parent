@@ -12,7 +12,13 @@
     <result column="service_name" property="serviceName"/>
     <result column="download_address" property="downloadAddress"/>
     <result column="product_type" property="productType"/>
+    <result column="time_resolution" property="timeResolution"/>
+    <result column="spatial_resolution" property="spatialResolution"/>
+    <result column="dimension" property="dimension"/>
     <result column="service_target" property="serviceTarget"/>
+    <result column="thumbnail_url" property="thumbnailUrl"/>
+    <result column="product_format" property="productFormat"/>
+    <result column="product_security" property="productSecurity"/>
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -43,6 +49,7 @@
       </foreach>
     </where>
   </sql>
+
   <sql id="Update_By_Example_Where_Clause" >
     <where >
       <foreach collection="example.oredCriteria" item="criteria" separator="or" >
@@ -72,33 +79,74 @@
       </foreach>
     </where>
   </sql>
+
   <sql id="Base_Column_List" >
     id, product_id, product_name, product_des, product_keyword, manufacture_date,
-    organization_name, service_name, download_address, product_type, service_target
+    organization_name, service_name, download_address, product_type, time_resolution,
+    spatial_resolution, dimension, service_target ,thumbnail_url,product_format,product_security
   </sql>
+
   <select id="selectByServiceAndTime" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from product
     where service_name = #{serviceName} AND manufacture_date = #{manufactureDate}
   </select>
+
+  <select id="selectAllproduct" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from product
+    where 1=1
+  </select>
+
+  <select id="selectByattribute" resultMap="BaseResultMap">
+    <if test="productName != null  or timeResolution != null or spatialResolution != null or dimension != null "  >
+    select * from product where 1=1
+    <if test="productName != null and productName != '' "  >
+      AND product_name = #{productName}
+    </if>
+    <if test="timeResolution != null and timeResolution != ''">
+      AND time_resolution = #{timeResolution}
+    </if>
+    <if test="spatialResolution != null and spatialResolution != ''">
+      AND spatial_resolution = #{spatialResolution}
+    </if>
+    <if test="dimension != '' and dimension != null ">
+      AND dimension = #{dimension}
+    </if>
+    </if>
+
+<!--    <if test="productName != null ">-->
+<!--      select-->
+<!--      <include refid="Base_Column_List" />-->
+<!--      from product-->
+<!--      where product_name = #{productName} AND time_resolution = #{timeResolution} AND spatial_resolution = #{spatialResolution} AND dimension = #{dimension}-->
+<!--    </if>-->
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
     delete from product
     where product_id = #{productId,jdbcType=VARCHAR}
   </delete>
+
   <insert id="insert" parameterType="Product" >
-    insert into product (product_id, product_name, product_des,
+    insert into product (id,product_id, product_name, product_des,
       product_keyword, manufacture_date, organization_name, 
-      service_name, download_address, product_type,
-      service_target)
-    values (#{productId,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR}, #{productDescription,jdbcType=VARCHAR}, 
+      service_name, download_address,product_type,time_resolution,spatial_resolution,dimension,
+      service_target,thumbnail_url,product_format,product_security)
+    values (#{id,jdbcType=INTEGER},#{productId,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR}, #{productDescription,jdbcType=VARCHAR},
       #{productKeyword,jdbcType=VARCHAR}, #{manufactureDate,jdbcType=VARCHAR}, #{organizationName,jdbcType=VARCHAR}, 
-      #{serviceName,jdbcType=VARCHAR}, #{downloadAddress,jdbcType=VARCHAR}, #{productType,jdbcType=VARCHAR},
-      #{serviceTarget,jdbcType=VARCHAR})
+      #{serviceName,jdbcType=VARCHAR}, #{downloadAddress,jdbcType=VARCHAR}, #{productType,jdbcType=VARCHAR}, #{timeResolution,jdbcType=VARCHAR}, #{spatialResolution,jdbcType=VARCHAR}, #{dimension,jdbcType=VARCHAR},
+      #{serviceTarget,jdbcType=VARCHAR},#{thumbnailUrl,jdbcType=VARCHAR},#{productFormat,jdbcType=VARCHAR},#{productSecurity,jdbcType=VARCHAR})
   </insert>
+
   <insert id="insertSelective" parameterType="Product" >
     insert into product
     <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
       <if test="productId != null" >
         product_id,
       </if>
@@ -126,11 +174,23 @@
       <if test="productType != null" >
         product_type,
       </if>
+      <if test="timeResolution != null" >
+        time_resolution,
+      </if>
+      <if test="spatialResolution != null" >
+        spatial_resolution,
+      </if>
+      <if test="dimension != null" >
+        dimension,
+      </if>
       <if test="serviceTarget != null" >
         service_target,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
       <if test="productId != null" >
         #{productId,jdbcType=VARCHAR},
       </if>
@@ -157,6 +217,15 @@
       </if>
       <if test="productType != null" >
         #{productType,jdbcType=VARCHAR},
+      </if>
+      <if test="timeResolution != null" >
+        #{timeResolution,jdbcType=VARCHAR},
+      </if>
+      <if test="spatialResolution != null" >
+        #{spatialResolution,jdbcType=VARCHAR},
+      </if>
+      <if test="dimension != null" >
+        #{dimension,jdbcType=VARCHAR},
       </if>
       <if test="serviceTarget != null" >
         #{serviceTarget,jdbcType=VARCHAR},
@@ -189,6 +258,15 @@
       </if>
       <if test="productType != null" >
         product_type = #{productType,jdbcType=VARCHAR},
+      </if>
+      <if test="timeResolution != null" >
+        #{timeResolution,jdbcType=VARCHAR},
+      </if>
+      <if test="spatialResolution != null" >
+        #{spatialResolution,jdbcType=VARCHAR},
+      </if>
+      <if test="dimension != null" >
+        #{dimension,jdbcType=VARCHAR},
       </if>
       <if test="serviceTarget != null" >
         service_target = #{serviceTarget,jdbcType=VARCHAR},

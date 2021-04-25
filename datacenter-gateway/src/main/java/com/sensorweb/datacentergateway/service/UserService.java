@@ -31,7 +31,7 @@ public class UserService {
         if (role==null) {
             return paths;
         }
-        List<ResRole> resRoles = resRoleMapper.selectByResId(role.getId());
+        List<ResRole> resRoles = resRoleMapper.selectByRid(role.getId());
         if (resRoles==null || resRoles.size()<1) {
             return paths;
         }

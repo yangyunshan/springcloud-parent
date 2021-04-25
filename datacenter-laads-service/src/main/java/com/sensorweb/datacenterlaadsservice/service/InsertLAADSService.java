@@ -71,7 +71,7 @@ public class InsertLAADSService implements LAADSConstant {
                             //通过接口内容可知AM1M卫星生产Terra MODIS, PM1M卫星生产Aqua MODIS, AMPM卫星生产Combined Aqua和Terra MODIS
                             //对于AMPM卫星,由于目前无法确定那些产品事Terra MODIS,所以暂时只接入AM1M和PM1M卫星的数据
                             if (satelliteInstrument.getName().equals("AM1M") || satelliteInstrument.getName().equals("PM1M")) {
-                                insertData(satelliteInstrument.getName(), start, stop, bbox);
+                                insertData(satelliteInstrument.getName(), start, stop, bbox, "");
                                 log.info("LAADS接入时间: " + calendar.getTime().toString() + "Status: Success");
                                 System.out.println("LAADS接入时间: " + calendar.getTime().toString() + "Status: Success");
                             }
@@ -345,7 +345,7 @@ public class InsertLAADSService implements LAADSConstant {
      * @param bbox "90.55,24.5,112.417,34.75"-->长江经济带
      */
     @Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void insertData(String satellite, String startTime, String endTime, String bbox) throws Exception {
+    public boolean insertData(String satellite, String startTime, String endTime, String bbox, String productName) throws Exception {
         String procedure = procedureId + ":" + satellite;
         String obsProperty = "";
         switch (satellite) {
@@ -372,39 +372,79 @@ public class InsertLAADSService implements LAADSConstant {
         List<Entry> entryList = new ArrayList<>();
         if (products!=null && products.size()>0) {
             for (String product:products) {
-                List<LAADSCollection> collections = getCollectionsByProduct(product);
-                if (collections!=null && collections.size()>0) {
-                    for (LAADSCollection collection:collections) {
+                if (product.equals(productName)) {
+                    List<LAADSCollection> collections = getCollectionsByProduct(product);
+                    if (collections!=null && collections.size()>0) {
+                        for (LAADSCollection collection:collections) {
 //                        index++;
 //                        System.out.println(index + ": " + product + ": " + collection.getName());
-                        String response = getInfoByOpenSearch(product, Integer.parseInt(collection.getName()), startTime, endTime, bbox);
-                        List<Entry> entries = getEntryInfo(response);
-                        entryList.addAll(entries);
-                        if (entries.size()>0) {
-                            for (Entry entry:entries) {
-                                if (!StringUtils.isBlank(entry.getLink())) {
-                                    String fileName = entry.getLink().substring(entry.getLink().lastIndexOf("/") + 1);
-                                    File file = new File(filePath);
-                                    if (!file.exists()) {
-                                        boolean flag = file.mkdirs();
+                            String response = getInfoByOpenSearch(product, Integer.parseInt(collection.getName()), startTime, endTime, bbox);
+                            List<Entry> entries = getEntryInfo(response);
+                            entryList.addAll(entries);
+                            if (entries.size()>0) {
+                                for (Entry entry:entries) {
+                                    if (!StringUtils.isBlank(entry.getLink())) {
+                                        String fileName = entry.getLink().substring(entry.getLink().lastIndexOf("/") + 1);
+                                        File file = new File(filePath);
+                                        if (!file.exists()) {
+                                            boolean flag = file.mkdirs();
+                                        }
+                                        String localPath = downloadFromUrl(entry.getLink(), fileName, filePath);
+                                        entry.setFilePath("localPath");
                                     }
-//                                String localPath = downloadFromUrl(entry.getLink(), fileName, filePath);
-                                    entry.setFilePath("localPath");
+                                    //远程文件下载到本地，并记录本地存储路径
+                                    Observation observation = new Observation();
+                                    observation.setProcedureId(procedure);
+                                    observation.setObsTime(entry.getStop());
+                                    observation.setBeginTime(entry.getStart());
+                                    observation.setEndTime(entry.getStop());
+                                    observation.setObsProperty(obsProperty);
+                                    observation.setType(product);
+                                    observation.setMapping("entry");
+                                    observation.setName(entry.getTitle());
+                                    observation.setBbox(entry.getBbox());
+                                    observation.setWkt(entry.getWkt());
+                                    observation.setOutId(entry.getId());
+                                    observations.add(observation);
                                 }
-                                //远程文件下载到本地，并记录本地存储路径
-                                Observation observation = new Observation();
-                                observation.setProcedureId(procedure);
-                                observation.setObsTime(entry.getStop());
-                                observation.setBeginTime(entry.getStart());
-                                observation.setEndTime(entry.getStop());
-                                observation.setObsProperty(obsProperty);
-                                observation.setType("hdf");
-                                observation.setMapping("entry");
-                                observation.setName(entry.getTitle());
-                                observation.setBbox(entry.getBbox());
-                                observation.setWkt(entry.getWkt());
-                                observation.setOutId(entry.getId());
-                                observations.add(observation);
+                            }
+                        }
+                    }
+                } else if (StringUtils.isBlank(productName)) {
+                    List<LAADSCollection> collections = getCollectionsByProduct(product);
+                    if (collections!=null && collections.size()>0) {
+                        for (LAADSCollection collection:collections) {
+//                        index++;
+//                        System.out.println(index + ": " + product + ": " + collection.getName());
+                            String response = getInfoByOpenSearch(product, Integer.parseInt(collection.getName()), startTime, endTime, bbox);
+                            List<Entry> entries = getEntryInfo(response);
+                            entryList.addAll(entries);
+                            if (entries.size()>0) {
+                                for (Entry entry:entries) {
+                                    if (!StringUtils.isBlank(entry.getLink())) {
+                                        String fileName = entry.getLink().substring(entry.getLink().lastIndexOf("/") + 1);
+                                        File file = new File(filePath);
+                                        if (!file.exists()) {
+                                            boolean flag = file.mkdirs();
+                                        }
+                                        String localPath = downloadFromUrl(entry.getLink(), fileName, filePath);
+                                        entry.setFilePath("localPath");
+                                    }
+                                    //远程文件下载到本地，并记录本地存储路径
+                                    Observation observation = new Observation();
+                                    observation.setProcedureId(procedure);
+                                    observation.setObsTime(entry.getStop());
+                                    observation.setBeginTime(entry.getStart());
+                                    observation.setEndTime(entry.getStop());
+                                    observation.setObsProperty(obsProperty);
+                                    observation.setType(product);
+                                    observation.setMapping("entry");
+                                    observation.setName(entry.getTitle());
+                                    observation.setBbox(entry.getBbox());
+                                    observation.setWkt(entry.getWkt());
+                                    observation.setOutId(entry.getId());
+                                    observations.add(observation);
+                                }
                             }
                         }
                     }
@@ -421,5 +461,6 @@ public class InsertLAADSService implements LAADSConstant {
                 throw new Exception("procedure: " + procedure + "不存在");
             }
         }
+        return true;
     }
 }

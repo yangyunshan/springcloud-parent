@@ -21,7 +21,7 @@ class DatacenterAuth2ServiceApplicationTests {
     private UserMapper userMapper;
     @Test
     public void test() {
-        User user = userMapper.selectByUsername("yys");
+        User user = userMapper.selectByUsername("sensorweb");
         System.out.println(user);
     }
 

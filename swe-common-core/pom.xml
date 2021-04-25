@@ -9,7 +9,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>swe-common-core</artifactId>
 
     <dependencies>
@@ -38,5 +37,6 @@
             <artifactId>cloning</artifactId>
             <version>1.10.3</version>
         </dependency>
+
     </dependencies>
 </project>

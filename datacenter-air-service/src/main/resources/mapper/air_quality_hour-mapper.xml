@@ -13,21 +13,55 @@
 
     <insert id="insertData" parameterType="AirQualityHour" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO air_quality_hourly (<include refid="insertFields"></include>)
-        VALUES (#{stationName}, #{uniqueCode}, #{queryTime}, #{pm25OneHour}, #{pm10OneHour}, #{so2OneHour}, #{no2OneHour}, #{coOneHour}, #{o3OneHour}, #{aqi}, #{primaryEP}, #{aqDegree}, #{aqType});
+        VALUES (#{stationName}, #{uniqueCode}, #{queryTime}, #{pm25OneHour}, #{pm10OneHour}, #{so2OneHour}, #{no2OneHour}, #{coOneHour}, #{o3OneHour}, #{aqi}, #{primaryEP}, #{aqDegree}, #{aqType})
     </insert>
 
     <insert id="insertDataBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO air_quality_hourly (<include refid="insertFields"></include>)
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.stationName}, #{item.uniqueCode}, #{item.queryTime}, #{item.pm25OneHour}, #{item.pm10OneHour}, #{item.so2OneHour}, #{item.no2OneHour}, #{item.coOneHour}, #{item.o3OneHour}, #{item.aqi}, #{item.primaryEP}, #{item.aqDegree}, #{item.aqType});
+            (#{item.stationName}, #{item.uniqueCode}, #{item.queryTime}, #{item.pm25OneHour}, #{item.pm10OneHour}, #{item.so2OneHour}, #{item.no2OneHour}, #{item.coOneHour}, #{item.o3OneHour}, #{item.aqi}, #{item.primaryEP}, #{item.aqDegree}, #{item.aqType})
         </foreach>
     </insert>
+
+    <select id="selectByIds" resultMap="airQualityHour">
+<!--        SELECT <include refid="selectFields"></include>-->
+<!--        FROM air_quality_hourly-->
+<!--        WHERE uniquecode = #{uniqueCode}-->
+        SELECT <include refid="selectFields"></include>
+        FROM air_quality_hourly
+        WHERE uniquecode in
+        <foreach collection="uniquecode" item="uniqueCode" open="(" close=")" separator=",">
+            #{uniqueCode}
+        </foreach>
+        LIMIT #{pageSize} OFFSET (#{pageNum}-1)*(#{pageSize})
+    </select>
+
+    <select id="selectNumberByIds" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM air_quality_hourly
+        WHERE uniquecode in
+        <foreach collection="uniquecode" item="uniqueCode" open="(" close=")" separator=",">
+            #{uniqueCode}
+        </foreach>
+    </select>
+
+    <select id="selectAll" resultMap="airQualityHour">
+        SELECT <include refid="selectFields"></include>
+        FROM air_quality_hourly
+        WHERE 1=1
+    </select>
 
     <select id="selectById" resultMap="airQualityHour">
         SELECT <include refid="selectFields"></include>
         FROM air_quality_hourly
         WHERE id = #{id}
+    </select>
+
+    <select id="selectByPage" resultMap="airQualityHour">
+        SELECT <include refid="selectFields"></include>
+        FROM air_quality_hourly
+        LIMIT #{pageSize} OFFSET (#{pageNum}-1)*(#{pageSize})
     </select>
 
     <resultMap id="airQualityHour" type="AirQualityHour">
@@ -46,5 +80,10 @@
         <result column="aqDegree" property="aqDegree"/>
         <result column="aqType" property="aqType"/>
     </resultMap>
+
+    <select id="selectNum" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM air_quality_hourly
+    </select>
 
 </mapper>

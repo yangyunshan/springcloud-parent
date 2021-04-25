@@ -56,7 +56,7 @@ COMMENT ON TABLE air_quality_hourly is '存储湖北省环境监测站的数据'
 CREATE TABLE station(city VARCHAR(255), uniquecode VARCHAR(25), sname VARCHAR(255), stype VARCHAR(255), glongitude VARCHAR(255), glatitude VARCHAR(255), cityid int);
 COMMENT ON TABLE station is '存储站点信息';
 
-CREATE TABLE product(id SERIAL NOT NULL PRiMARY KEY, product_id VARCHAR(255), product_name VARCHAR(255), product_des VARCHAR(255), product_keyword VARCHAR(255), manufacture_date VARCHAR(50), organization_name VARCHAR(255), service_name VARCHAR(255), download_address VARCHAR(255), product_type VARCHAR(50), service_target VARCHAR(255));
+CREATE TABLE product(id SERIAL NOT NULL PRiMARY KEY, product_id VARCHAR(255), product_name VARCHAR(255), product_des VARCHAR(255), product_keyword VARCHAR(255), manufacture_date VARCHAR(50), organization_name VARCHAR(255), service_name VARCHAR(255), download_address VARCHAR(255), product_type VARCHAR(50), time_resolution VARCHAR(50), spatial_resolution VARCHAR(50), dimension INT, service_target VARCHAR(255));
 COMMENT ON TABLE product is '存储数据产品信息';
 
 CREATE TABLE entry(id SERIAL NOT NULL PRIMARY KEY, entry_id VARCHAR(50), title VARCHAR(255), updated VARCHAR(50), link VARCHAR(255), file_path VARCHAR(255), start_time TIMESTAMP, stop_time TIMESTAMP, bbox VARCHAR(255), geom GEOMETRY(POLYGON, 4326));
@@ -143,6 +143,11 @@ create table ClientDetails (
 --存储指标信息
 CREATE TABLE theme(id SERIAL NOT NULL PRIMARY KEY, model_id VARCHAR(255), model_name VARCHAR(255), index_name VARCHAR(255), description VARCHAR(255), th_field VARCHAR(255), th_subject VARCHAR(255), begin_time TIMESTAMP, end_time TIMESTAMP, bbox VARCHAR(255), geom GEOMETRY);
 CREATE TABLE sub_theme(id SERIAL NOT NULL PRIMARY KEY, sub_name VARCHAR(255), indicator_name VARCHAR(255), sub_scale VARCHAR(255), spa_resolution VARCHAR(255), obs_frequency VARCHAR(255), out_id VARCHAR(255));
+```
+### 2.5 其它配置
+```sql
+GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO sensorweb;
+GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO sensorweb;
 ```
 ## 3 涉及主要技术
 ### 3.1 SpringCloud/SpringBoot
