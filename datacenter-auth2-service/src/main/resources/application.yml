@@ -7,15 +7,10 @@ spring:
     name: datacenter-auth2-service
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
-#  redis:
-#    database: 0
-#    port: 6379
-#    host: localhost
-#    password: 12345
   datasource:
     driver-class-name: org.postgresql.Driver
-    jdbc-url: jdbc:postgresql://localhost:5432/user_db
-    username: sensorweb
+    jdbc-url: jdbc:postgresql://202.114.123.116:5432/postgres
+    username: postgres
     password: 12345
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
@@ -40,4 +35,4 @@ eureka:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://localhost:7001/eureka/
+      defaultZone: http://202.114.123.116:7001/eureka/,http://202.114.123.116:7002/eureka/,http://202.114.123.116:7003/eureka/

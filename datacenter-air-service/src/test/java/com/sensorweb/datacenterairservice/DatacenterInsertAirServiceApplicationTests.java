@@ -26,7 +26,6 @@ class DatacenterInsertAirServiceApplicationTests {
 
     @Test
     void contextLoads() throws Exception {
-
     }
 
 

@@ -300,8 +300,8 @@ public class InsertCWICService implements CWICConstant {
                     Observation observation = new Observation();
                     observation.setProcedureId(procedureId + ":" + catalog);
                     observation.setMapping("record");
-                    observation.setType("file");
-                    observation.setObsProperty("");
+                    observation.setType("CWIC");
+                    observation.setObsProperty("remote sensing");
                     observation.setObsTime(record.getEnd());
                     observation.setBeginTime(record.getBegin());
                     observation.setEndTime(record.getEnd());

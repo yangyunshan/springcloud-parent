@@ -17,5 +17,5 @@ public interface WeatherStationMapper {
     WeatherStationModel selectByStationId(String stationId);
     int selectAllCount();
     List<WeatherStationModel> selectByOffsetAndLimit(@Param("offset") int offset, @Param("limit") int limit);
-    List<WeatherStationModel> selectByAll();
+    List<WeatherStationModel> selectByStationType(String stype);
 }

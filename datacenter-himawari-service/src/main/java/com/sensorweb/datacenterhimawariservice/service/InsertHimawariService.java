@@ -35,9 +35,6 @@ public class InsertHimawariService implements HimawariConstant {
     @Value("${datacenter.path.himawari}")
     private String upload;
 
-    @Value("${datacenter.domain}")
-    private String baseUrl;
-
     @Autowired
     private HimawariMapper himawariMapper;
 
@@ -111,6 +108,7 @@ public class InsertHimawariService implements HimawariConstant {
     @Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean insertData(LocalDateTime dateTime) throws Exception {
         int year = dateTime.getYear();
+        dateTime = dateTime.minusHours(8);//本地时间需要减去8才能化为UTC
         Month month = dateTime.getMonth();
         String monthValue = month.getValue()<10?"0"+month.getValue():month.getValue()+"";
         String day = dateTime.getDayOfMonth()<10?"0"+dateTime.getDayOfMonth():dateTime.getDayOfMonth()+"";
@@ -130,8 +128,8 @@ public class InsertHimawariService implements HimawariConstant {
             observation.setEndTime(himawari.getTime());
             observation.setBeginTime(himawari.getTime().minusSeconds(60 * 60));
             observation.setMapping("himawari");
-            observation.setObsProperty("Himawari:ARP");
-            observation.setType("hdf.nc");
+            observation.setObsProperty("Himawari_ARP");
+            observation.setType("Himawari");
             observation.setName(himawari.getName());
             observation.setBbox("-180 -90,180 90");
             String wkt = "POLYGON((-180 -90,-180 90,180 90,180 -90,-180 -90))";
@@ -167,11 +165,10 @@ public class InsertHimawariService implements HimawariConstant {
         if (flag) {
             himawari.setName(fileName);
             String date = year + "-" + month + "-" + day + "T" + hour + ":00:00";
-            Instant temp = DataCenterUtils.string2LocalDateTime(date).plusHours(8).toInstant(ZoneOffset.ofHours(+8));
+            Instant temp = DataCenterUtils.string2LocalDateTime(date).atZone(ZoneId.of("UTC")).toInstant();
             himawari.setTime(temp);
-            String url = baseUrl + "/himawari/" + fileName;
             himawari.setUrl(filePath + fileName);
-            himawari.setLocalPath(url);
+            himawari.setLocalPath(uploadFilePath);
             return himawari;
         }
         return null;

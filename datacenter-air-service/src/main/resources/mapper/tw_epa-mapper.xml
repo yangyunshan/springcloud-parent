@@ -37,6 +37,12 @@ publish_time, so2, so2_avg, site_engname, site_id, site_name, site_type, status,
         WHERE id = #{id}
     </select>
 
+    <select id="selectByTemporal" resultMap="twepa">
+        SELECT <include refid="selectFields"></include>
+        FROM tw_epa
+        WHERE publish_time <![CDATA[>=]]> #{begin} AND publish_time <![CDATA[<=]]> #{end}
+    </select>
+
     <resultMap id="twepa" type="TWEPA">
         <id column="id" property="id"/>
         <result column="tw_time" property="time"/>

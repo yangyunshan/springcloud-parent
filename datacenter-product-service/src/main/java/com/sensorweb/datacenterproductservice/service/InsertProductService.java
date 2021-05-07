@@ -21,14 +21,10 @@ public class InsertProductService {
     @Value("${datacenter.path.product}")
     private String filePath;
 
-    @Value("${datacenter.domain}")
-    private String domain;
-
     public void InsertProduct(Product info) {
         String url = info.getDownloadAddress();
         String serviceName = info.getServiceName();
         String fileName = url.substring(url.lastIndexOf("/") + 1);
-        String wholePath = "";
         try {
             if (serviceName.equals("PMStation") && url.endsWith("Interpolated.tif")) {
                 File temp = new File(filePath + "Interpolated/");
@@ -36,19 +32,16 @@ public class InsertProductService {
                     temp.mkdirs();
                 }
                 DataCenterUtils.downloadHttpUrl(url, filePath + "Interpolated/", fileName);
-                wholePath = filePath + "Interpolated/" + fileName;
-                info.setDownloadAddress(domain + "/" + filePath.substring(10) + "Interpolated/" + fileName);
+                info.setDownloadAddress(filePath + "Interpolated/" + fileName);
             } else {
                 File file = new File(filePath + serviceName + "/");
                 if (!file.exists()) {
                     file.mkdirs();
                 }
                 DataCenterUtils.downloadHttpUrl(url, filePath + serviceName + "/", fileName);
-                wholePath = filePath + serviceName + "/" + fileName;
-                info.setDownloadAddress(domain + "/" + filePath.substring(10) + serviceName + "/" + fileName);
+                info.setDownloadAddress(filePath + serviceName + "/" + fileName);
             }
             productMapper.insertSelective(info);
-            System.out.println("LAADSProduct: " + fileName + "Registry Success!" + "Path: " + wholePath);
         } catch (Exception e) {
             log.error(e.getMessage());
         }

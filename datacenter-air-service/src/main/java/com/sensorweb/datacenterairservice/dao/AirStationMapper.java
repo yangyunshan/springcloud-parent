@@ -14,7 +14,7 @@ public interface AirStationMapper {
     int insertDataBatch(List<AirStationModel> airStationModels);
 
     AirStationModel selectById(int id);
-    AirStationModel selectByStationId(String stationId);
+    List<AirStationModel> selectByStationId(String stationId);
     int selectAllCount();
     List<AirStationModel> selectByOffsetAndLimit(@Param("offset") int offset, @Param("limit") int limit);
     List<AirStationModel> selectByAll();

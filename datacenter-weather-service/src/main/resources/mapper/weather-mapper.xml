@@ -30,7 +30,11 @@
         WHERE id = #{id}
     </select>
 
-
+    <select id="selectByTemporal" resultMap="chinaWeather">
+        SELECT <include refid="selectFields"></include>
+        FROM ch_weather
+        WHERE query_time <![CDATA[>=]]> #{begin} AND query_time <![CDATA[<=]]> #{end}
+    </select>
 
     <resultMap id="chinaWeather" type="ChinaWeather">
         <id column="id" property="id"/>

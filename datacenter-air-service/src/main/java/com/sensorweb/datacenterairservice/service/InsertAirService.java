@@ -76,7 +76,7 @@ public class InsertAirService extends Thread implements AirConstant {
                     } catch (Exception e) {
                         log.error(e.getMessage());
                         log.info("湖北省监测站接入时间: " + dateTime.toString() + "Status: Fail");
-                        System.out.println("湖北省监测站接入时间: " + dateTime.toString() + "Status: Fail");
+                        System.out.println(e.getMessage());
                         break;
                     }
                 }
@@ -103,28 +103,32 @@ public class InsertAirService extends Thread implements AirConstant {
                 AirQualityHour airQualityHour = (AirQualityHour)o;
                 int status = airQualityHourMapper.insertData(airQualityHour);
                 if (status>0) {
-                    System.out.println("接入Air_Quality_Hourly成功：" + airQualityHour.getStationName());
                     Observation observation = new Observation();
                     observation.setProcedureId(airQualityHour.getUniqueCode());
                     observation.setObsTime(airQualityHour.getQueryTime());
                     observation.setMapping("air_quality_hourly");
                     observation.setObsProperty("AirQuality");
-                    observation.setType("hb_air");
+                    observation.setType("HB_AIR");
+                    AirStationModel airStationModel = airStationMapper.selectByStationId(airQualityHour.getUniqueCode()).get(0);
+                    if (airStationModel!=null) {
+                        String wkt = "POINT(" + airStationModel.getLon() + " " + airStationModel.getLat() + ")";
+                        observation.setWkt(wkt);
+                        String bbox = airStationModel.getLon() + " " + airStationModel.getLat() + "," + airStationModel.getLon() + " " + airStationModel.getLat();
+                        observation.setBbox(bbox);
+                    }
                     observation.setEndTime(getResultTime(airQualityHour));
                     observation.setBeginTime(getResultTime(airQualityHour).minusSeconds(60*60));
                     observation.setOutId(airQualityHour.getId());
-                    boolean flag = false;
-                    try {
-                        flag = sensorFeignClient.isExist(observation.getProcedureId());
-                        System.out.println(flag);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    boolean flag = true;
+//                    try {
+//                        flag = sensorFeignClient.isExist(observation.getProcedureId());
+//                        System.out.println(flag);
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
 
                     if (flag) {
-                        System.out.println(observation.getProcedureId() + " :is existed");
                         obsFeignClient.insertData(observation);
-                        System.out.println("接入Observation成功：" + airQualityHour.getStationName());
                     } else {
                         log.info("procedure:" + observation.getProcedureId() + "不存在");
                     }
@@ -311,6 +315,7 @@ public class InsertAirService extends Thread implements AirConstant {
      * 将湖北省环境监测站站点注册到数据库
      * @param objects
      */
+    @Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean insertWHAirStationInfo(List<Object> objects) throws IOException {
         List<AirStationModel> res = new ArrayList<>();
         if (objects!=null && objects.size()>0) {
@@ -332,7 +337,7 @@ public class InsertAirService extends Thread implements AirConstant {
                             airStationModel.setLat(((JSONObject) location).getDoubleValue("lat"));
                         }
                     }
-                    airStationModel.setStationType("hb_air");
+                    airStationModel.setStationType("HB_AIR");
                     res.add(airStationModel);
                 }
             } else if (objects.get(0) instanceof AirQualityDay) {

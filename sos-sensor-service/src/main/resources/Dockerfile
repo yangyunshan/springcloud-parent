@@ -4,4 +4,4 @@ ADD sos-sensor-service.jar app.jar
 RUN bash -c 'touch /app.jar'
 
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
-EXPOSE 9000
+EXPOSE 9001

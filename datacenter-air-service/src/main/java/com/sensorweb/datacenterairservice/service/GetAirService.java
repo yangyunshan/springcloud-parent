@@ -62,7 +62,7 @@ public class GetAirService {
                 .append("PM25OneHour").append("\r\n");
         if (airQualityHours!=null && airQualityHours.size()>0) {
             for (AirQualityHour airQualityHour:airQualityHours) {
-                AirStationModel stationModel = airStationMapper.selectByStationId(airQualityHour.getUniqueCode());
+                AirStationModel stationModel = airStationMapper.selectByStationId(airQualityHour.getUniqueCode()).get(0);
                 //写文件信息
                 sb.append(stationModel.getStationName()).append("\t").append(stationModel.getStationId()).append("\t").
                         append(stationModel.getLon()).append("\t").append(stationModel.getLat()).append("\t")
@@ -83,7 +83,7 @@ public class GetAirService {
                 .append("PM25OneHour").append("\r\n");
         if (twepas!=null && twepas.size()>0) {
             for (TWEPA twepa:twepas) {
-                AirStationModel stationModel = airStationMapper.selectByStationId(twepa.getSiteId());
+                AirStationModel stationModel = airStationMapper.selectByStationId(twepa.getSiteId()).get(0);
                 //写文件信息
                 sb.append(stationModel.getStationName()).append("\t").append(stationModel.getStationId()).append("\t").
                         append(stationModel.getLon()).append("\t").append(stationModel.getLat()).append("\t")
@@ -104,7 +104,7 @@ public class GetAirService {
                 .append("PM25OneHour").append("\r\n");
         if (chinaAirQualityHours!=null && chinaAirQualityHours.size()>0) {
             for (ChinaAirQualityHour chinaAirQualityHou:chinaAirQualityHours) {
-                AirStationModel stationModel = airStationMapper.selectByStationId(chinaAirQualityHou.getStationCode());
+                AirStationModel stationModel = airStationMapper.selectByStationId(chinaAirQualityHou.getStationCode()).get(0);
                 //写文件信息
                 sb.append(stationModel.getStationName()).append("\t").append(stationModel.getStationId()).append("\t").
                         append(stationModel.getLon()).append("\t").append(stationModel.getLat()).append("\t")

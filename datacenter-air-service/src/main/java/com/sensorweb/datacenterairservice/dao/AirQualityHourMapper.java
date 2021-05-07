@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.Instant;
 import java.util.List;
 
 @Repository
@@ -27,4 +28,6 @@ public interface AirQualityHourMapper {
     int selectNum();
 
     int selectNumberByIds(List<String> uniquecode);
+
+    List<AirQualityHour> selectByTemporal(@Param("begin") Instant begin, @Param("end") Instant end);
 }

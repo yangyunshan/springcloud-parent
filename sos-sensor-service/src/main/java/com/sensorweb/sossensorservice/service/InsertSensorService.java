@@ -96,9 +96,6 @@ public class InsertSensorService {
     @Value("${datacenter.path.sensorml}")
     private String uploadPath;
 
-    @Value("${datacenter.domain}")
-    private String baseUrl;
-
 
     /**
      * 生成InsertSensor响应文档
@@ -153,7 +150,7 @@ public class InsertSensorService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return baseUrl + "/sensorml/" + fileName;
+        return uploadPath + fileName;
     }
 
     /**

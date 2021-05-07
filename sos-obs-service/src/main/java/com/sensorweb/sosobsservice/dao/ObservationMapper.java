@@ -24,4 +24,9 @@ public interface ObservationMapper {
     List<Observation> selectByObsTime(Instant obsTime);//查询obsTime之前的观测数据
     List<Observation> selectByTemporal(@Param("begin") Instant begin, @Param("end") Instant end);
     List<Observation> selectBySpatial(String bbox);//评断两个集合图形是否有Within关系
+    List<Observation> selectByTemAndSpaAndType(@Param("begin") Instant begin, @Param("end") Instant end, @Param("type") String type,
+                                               @Param("spa") String spa, @Param("cityIds") List<Integer> cityIds);
+    List<Integer> selectCityIdInWuCityCircle();//查询武汉城市圈的所有城市id
+    List<Integer> selectCityIdInChina();//查询全国的id
+    List<Integer> selectCityIdInChangjiang();//查询长江经济带的所有城市id
 }

@@ -23,17 +23,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
 import java.net.URLEncoder;
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Slf4j
@@ -73,9 +68,9 @@ public class InsertChinaAirService extends Thread implements AirConstant {
                         System.out.println("全国空气质量监测站接入时间: " + dateTime.toString() + "Status: Success");
                     }
                 } catch (Exception e) {
-                    log.error(e.getMessage());
                     log.info("全国空气质量监测站接入时间: " + dateTime.toString() + "Status: Fail");
-                    System.out.println("全国空气质量监测站接入时间: " + dateTime.toString() + "Status: Fail");
+                    System.out.println(e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }).start();
@@ -93,10 +88,17 @@ public class InsertChinaAirService extends Thread implements AirConstant {
             if (status>0) {
                 Observation observation = new Observation();
                 observation.setProcedureId(chinaAirQualityHours.get(i).getStationCode());
-                observation.setObsTime(str2Instant(chinaAirQualityHours.get(i).getTimePoint()));
+                observation.setObsTime(chinaAirQualityHours.get(i).getTimePoint());
                 observation.setMapping("china_2020");
                 observation.setObsProperty("AirQuality");
-                observation.setType("ch_air");
+                observation.setType("CH_AIR");
+                AirStationModel airStationModel = airStationMapper.selectByStationId(chinaAirQualityHours.get(i).getStationCode()).get(0);
+                if (airStationModel!=null) {
+                    String wkt = "POINT(" + airStationModel.getLon() + " " + airStationModel.getLat() + ")";
+                    observation.setWkt(wkt);
+                    String bbox = airStationModel.getLon() + " " + airStationModel.getLat() + "," + airStationModel.getLon() + " " + airStationModel.getLat();
+                    observation.setBbox(bbox);
+                }
                 observation.setEndTime(observation.getObsTime());
                 observation.setBeginTime(observation.getObsTime());
                 observation.setOutId(chinaAirQualityHours.get(i).getId());
@@ -108,7 +110,7 @@ public class InsertChinaAirService extends Thread implements AirConstant {
 //                    e.printStackTrace();
 //                }
                 if (flag) {
-                    System.out.println(observation.getProcedureId() + " :is existed");
+//                    System.out.println(observation.getProcedureId() + " :is existed");
                     obsFeignClient.insertData(observation);
                 } else {
                     log.info("procedure:" + observation.getProcedureId() + "不存在");
@@ -124,6 +126,9 @@ public class InsertChinaAirService extends Thread implements AirConstant {
      * @throws IOException
      */
     public Instant str2Instant(String time) {
+        if (StringUtils.isBlank(time)) {
+            return null;
+        }
         String pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'";
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
         dateTimeFormatter.withZone(ZoneId.of("Asia/Shanghai"));
@@ -164,7 +169,7 @@ public class InsertChinaAirService extends Thread implements AirConstant {
                     chinaAirQualityHour.setSo2(feed.getString("so2"));
                     chinaAirQualityHour.setSo224h(feed.getString("so2_24h"));
                     chinaAirQualityHour.setStationCode(feed.getString("station_code"));
-                    chinaAirQualityHour.setStationCode(feed.getString("time_point"));
+                    chinaAirQualityHour.setTimePoint(str2Instant(feed.getString("time_point")));
                     res.add(chinaAirQualityHour);
                 }
             }
@@ -176,6 +181,7 @@ public class InsertChinaAirService extends Thread implements AirConstant {
      * 将全国空气站点注册到数据库
      * @param
      */
+    @Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean insertCHAirStationInfo(List<ChinaAirQualityHour> chinaAirQualityHours) throws IOException {
         List<AirStationModel> res = new ArrayList<>();
         if (chinaAirQualityHours!=null && chinaAirQualityHours.size()>0) {
@@ -196,7 +202,7 @@ public class InsertChinaAirService extends Thread implements AirConstant {
                         airStationModel.setLat(((JSONObject) location).getDoubleValue("lat"));
                     }
                 }
-                airStationModel.setStationType("ch_air");
+                airStationModel.setStationType("CH_AIR");
                 res.add(airStationModel);
             }
         }

@@ -36,6 +36,21 @@
         WHERE h_name = #{name}
     </select>
 
+<!--    <select id="selectBySpatialAndTemporal" resultMap="observation">-->
+<!--        SELECT <include refid="selectFields"></include>-->
+<!--        FROM himawari-->
+<!--        WHERE 1=1 AND h_time <![CDATA[>=]]> #{begin} AND h_time <![CDATA[<=]]> #{end}-->
+<!--        <if test="region == '武汉城市圈'">-->
+<!--            AND ST_Within(geom, (SELECT geom FROM wuhancitycircle)) = true-->
+<!--        </if>-->
+<!--        <if test="region == '全国'">-->
+<!--            AND ST_Within(geom, (SELECT geom FROM china_1984_mian)) = true-->
+<!--        </if>-->
+<!--        <if test="region == '长江经济带'">-->
+<!--            AND ST_Within(geom, (SELECT geom FROM changjiang)) = true-->
+<!--        </if>-->
+<!--    </select>-->
+
     <resultMap id="himawari" type="Himawari">
         <id property="id" column="id"/>
         <result property="name" column="h_name"/>

@@ -25,9 +25,6 @@
     </insert>
 
     <select id="selectByIds" resultMap="airQualityHour">
-<!--        SELECT <include refid="selectFields"></include>-->
-<!--        FROM air_quality_hourly-->
-<!--        WHERE uniquecode = #{uniqueCode}-->
         SELECT <include refid="selectFields"></include>
         FROM air_quality_hourly
         WHERE uniquecode in
@@ -56,6 +53,12 @@
         SELECT <include refid="selectFields"></include>
         FROM air_quality_hourly
         WHERE id = #{id}
+    </select>
+
+    <select id="selectByTemporal" resultMap="airQualityHour">
+        SELECT <include refid="selectFields"></include>
+        FROM air_quality_hourly
+        WHERE querytime <![CDATA[>=]]> #{begin} AND querytime <![CDATA[<=]]> #{end}
     </select>
 
     <select id="selectByPage" resultMap="airQualityHour">

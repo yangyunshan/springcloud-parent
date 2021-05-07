@@ -26,7 +26,7 @@ public class GetWeatherInfo {
     /**
      * 将天气信息导出为.txt文本文件,格式指定
      */
-    public void exportTXT(List<ChinaWeather> chinaWeathers) {
+    public String exportTXT(List<ChinaWeather> chinaWeathers) {
         StringBuilder sb = new StringBuilder();
         //写文件第一行
         sb.append("Station_id_C").append("\t").append("longitude").append("\t").append("latitude").append("\t")
@@ -41,11 +41,11 @@ public class GetWeatherInfo {
                         .append(chinaWeather.getPressure()).append("\r\n");
             }
         }
-        writeTXT(sb.toString());
+        return writeTXT(sb.toString());
 
     }
 
-    public void writeTXT(String str) {
+    public String writeTXT(String str) {
         try {
             /* 写入Txt文件 */
             File writename = new File(exportDir + "weatherdata.txt");
@@ -53,9 +53,10 @@ public class GetWeatherInfo {
             out.write(str);
             out.flush();
             out.close();
-
+            return exportDir + "weatherdata.txt";
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return "";
     }
 }

@@ -2,6 +2,7 @@ package com.sensorweb.sosobsservice.service;
 
 import com.sensorweb.sosobsservice.dao.ObservationMapper;
 import com.sensorweb.sosobsservice.entity.Observation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,29 +15,6 @@ import java.util.List;
 public class GetObservationExpandService {
     @Autowired
     private ObservationMapper observationMapper;
-
-    /**
-     * 通过时空条件和类型查询数据
-     */
-    public List<Observation> getObservationByConditions(String bbox, Instant timeBegin, Instant timeEnd, String type) {
-        List<Observation> res = new ArrayList<>();
-
-        List<Observation> tempsByBBox = getObservationByEnvelope(bbox);
-        List<Observation> temps = new ArrayList<>();
-        for (Observation tempByBBox:tempsByBBox) {
-            if (tempByBBox.getBeginTime().isAfter(timeBegin) && tempByBBox.getEndTime().isBefore(timeEnd)) {
-                temps.add(tempByBBox);
-            }
-        }
-
-        for (Observation temp:temps) {
-            if (temp.getType().equals(type)) {
-                res.add(temp);
-            }
-        }
-
-        return res;
-    }
 
     /**
      * 查询所有的观测数据

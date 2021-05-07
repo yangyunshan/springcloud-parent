@@ -1,5 +1,9 @@
 package com.sensorweb.datacenterairservice.entity;
 
+import io.swagger.models.auth.In;
+
+import java.time.Instant;
+
 public class ChinaAirQualityHour {
     private Integer id;
 
@@ -43,9 +47,9 @@ public class ChinaAirQualityHour {
 
     private String stationCode;
 
-    private String timePoint;
+    private Instant timePoint;
 
-    public ChinaAirQualityHour(Integer id, String aqi, String area, String co, String co24h, String no2, String no224h, String o3, String o324h, String o38h, String o38h24h, String pm10, String pm1024h, String pm25, String pm2524h, String positionName, String primaryPollutant, String quality, String so2, String so224h, String stationCode, String timePoint) {
+    public ChinaAirQualityHour(Integer id, String aqi, String area, String co, String co24h, String no2, String no224h, String o3, String o324h, String o38h, String o38h24h, String pm10, String pm1024h, String pm25, String pm2524h, String positionName, String primaryPollutant, String quality, String so2, String so224h, String stationCode, Instant timePoint) {
         this.id = id;
         this.aqi = aqi;
         this.area = area;
@@ -242,11 +246,11 @@ public class ChinaAirQualityHour {
         this.stationCode = stationCode == null ? null : stationCode.trim();
     }
 
-    public String getTimePoint() {
+    public Instant getTimePoint() {
         return timePoint;
     }
 
-    public void setTimePoint(String timePoint) {
-        this.timePoint = timePoint == null ? null : timePoint.trim();
+    public void setTimePoint(Instant timePoint) {
+        this.timePoint = timePoint;
     }
 }

@@ -292,6 +292,14 @@ public class DataCenterUtils {
         return localDateTime;
     }
 
+    public static LocalDateTime string2LocalDateTime3(String time) {
+        String pattern = "yyyy-MM-dd HH:mm:ss";
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
+        dateTimeFormatter.withZone(ZoneId.of("Asia/Shanghai"));
+        LocalDateTime localDateTime = LocalDateTime.parse(time, dateTimeFormatter);
+        return localDateTime;
+    }
+
     /**
      * 字符串转LocalDateTime
      * @param time

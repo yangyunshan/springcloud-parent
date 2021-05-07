@@ -47,9 +47,10 @@
         FROM station
     </select>
 
-    <select id="selectByAll" resultMap="weatherStationModel">
+    <select id="selectByStationType" resultMap="weatherStationModel">
         SELECT <include refid="selectFields"></include>
         FROM station
+        WHERE stype = #{stype}
     </select>
 
     <resultMap id="weatherStationModel" type="WeatherStationModel">

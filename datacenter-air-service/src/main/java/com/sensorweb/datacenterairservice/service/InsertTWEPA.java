@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -44,6 +45,7 @@ import java.util.zip.GZIPInputStream;
 
 @Slf4j
 @Service
+@EnableScheduling
 public class InsertTWEPA implements AirConstant {
 
     @Autowired
@@ -82,7 +84,7 @@ public class InsertTWEPA implements AirConstant {
                 } catch (Exception e) {
                     log.error(e.getMessage());
                     log.info("台湾EPA接入时间: " + dateTime.toString() + "Status: Fail");
-                    System.out.println("台湾EPA接入时间: " + dateTime.toString() + "Status: Fail");
+                    System.out.println(e.getMessage());
                 }
             }
         }).start();
@@ -96,10 +98,17 @@ public class InsertTWEPA implements AirConstant {
             if (status>0) {
                 Observation observation = new Observation();
                 observation.setProcedureId(twepa.getSiteId());
-                observation.setObsTime(str2Instant(twepa.getPublishTime()));
-                observation.setMapping("china_2020");
+                observation.setObsTime(twepa.getPublishTime());
+                observation.setMapping("tw_epa");
                 observation.setObsProperty("AirQuality");
-                observation.setType("ch_air");
+                observation.setType("TW_EPA_AIR");
+                AirStationModel airStationModel = airStationMapper.selectByStationId(twepa.getSiteId()).get(0);
+                if (airStationModel!=null) {
+                    String wkt = "POINT(" + airStationModel.getLon() + " " + airStationModel.getLat() + ")";
+                    observation.setWkt(wkt);
+                    String bbox = airStationModel.getLon() + " " + airStationModel.getLat() + "," + airStationModel.getLon() + " " + airStationModel.getLat();
+                    observation.setBbox(bbox);
+                }
                 observation.setEndTime(observation.getObsTime());
                 observation.setBeginTime(observation.getObsTime());
                 observation.setOutId(twepa.getId());
@@ -111,7 +120,6 @@ public class InsertTWEPA implements AirConstant {
 //                    e.printStackTrace();
 //                }
                 if (flag) {
-                    System.out.println(observation.getProcedureId() + " :is existed");
                     obsFeignClient.insertData(observation);
                 } else {
                     log.info("procedure:" + observation.getProcedureId() + "不存在");
@@ -142,12 +150,12 @@ public class InsertTWEPA implements AirConstant {
                 for (int i=0; i<feeds.size(); i++) {
                     TWEPA twepa = new TWEPA();
                     JSONObject feed = feeds.getJSONObject(i);
-                    twepa.setTime(feed.getString("time"));
+                    twepa.setTime(str2Instant(feed.getString("PublishTime")));
                     twepa.setAqi(feed.getString("AQI"));
                     twepa.setCo(feed.getString("CO"));
                     twepa.setCo8hr(feed.getString("CO_8hr"));
                     twepa.setCountry(feed.getString("Country"));
-                    twepa.setImportDate(feed.getString("ImportDate"));
+                    twepa.setImportDate(str2Instant(feed.getString("PublishTime")));
                     twepa.setLon(Double.parseDouble(feed.getString("Longitude")));
                     twepa.setLat(Double.parseDouble(feed.getString("Latitude")));
                     twepa.setNo(feed.getString("NO"));
@@ -160,7 +168,7 @@ public class InsertTWEPA implements AirConstant {
                     twepa.setPm25(feed.getString("PM2_5"));
                     twepa.setPm25Avg(feed.getString("PM2_5_AVG"));
                     twepa.setPollutant(feed.getString("Pollutant"));
-                    twepa.setPublishTime(feed.getString("PublishTime"));
+                    twepa.setPublishTime(str2Instant(feed.getString("PublishTime")));
                     twepa.setSo2(feed.getString("SO2"));
                     twepa.setSo2Avg(feed.getString("SO2_AVG"));
                     twepa.setSiteEngName(feed.getString("SiteEngName"));
@@ -225,6 +233,7 @@ public class InsertTWEPA implements AirConstant {
      * 将台湾EPA站点注册到数据库
      * @param
      */
+    @Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean insertTWAirStationInfo(List<TWEPA> twepas) throws IOException {
         List<AirStationModel> res = new ArrayList<>();
         if (twepas!=null && twepas.size()>0) {
@@ -245,7 +254,7 @@ public class InsertTWEPA implements AirConstant {
                         airStationModel.setLat(((JSONObject) location).getDoubleValue("lat"));
                     }
                 }
-                airStationModel.setStationType("tw_epa_air");
+                airStationModel.setStationType("TW_EPA_AIR");
                 res.add(airStationModel);
             }
         }

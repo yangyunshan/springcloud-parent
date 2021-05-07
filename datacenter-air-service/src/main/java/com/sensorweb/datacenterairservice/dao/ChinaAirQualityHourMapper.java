@@ -1,7 +1,10 @@
 package com.sensorweb.datacenterairservice.dao;
 
+import com.sensorweb.datacenterairservice.entity.AirQualityHour;
 import com.sensorweb.datacenterairservice.entity.ChinaAirQualityHour;
 import com.sensorweb.datacenterairservice.entity.ChinaAirQualityHourExample;
+
+import java.time.Instant;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -34,4 +37,5 @@ public interface ChinaAirQualityHourMapper {
     int updateByPrimaryKeySelective(ChinaAirQualityHour record);
 
     int updateByPrimaryKey(ChinaAirQualityHour record);
+    List<ChinaAirQualityHour> selectByTemporal(@Param("begin") Instant begin, @Param("end") Instant end);
 }

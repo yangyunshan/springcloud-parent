@@ -476,8 +476,14 @@
   </update>
 
   <select id="selectById" resultMap="BaseResultMap">
-    SELECT <include refid="selectFields"></include>
+    SELECT <include refid="Base_Column_List" />
     FROM china_2020
     WHERE id = #{id}
+  </select>
+
+  <select id="selectByTemporal" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"></include>
+    FROM china_2020
+    WHERE time_point <![CDATA[>=]]> #{begin} AND time_point <![CDATA[<=]]> #{end}
   </select>
 </mapper>

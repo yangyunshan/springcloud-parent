@@ -50,7 +50,7 @@ public class InsertWeatherInfo {
     /**
      * 每小时接入一次数据
      */
-    @Scheduled(cron = "0 30 0/1 * * ?") //每个小时的20分开始接入
+    @Scheduled(cron = "0 25 0/1 * * ?") //每个小时的25分开始接入
     public void insertDataByHour() {
         LocalDateTime dateTime = LocalDateTime.now(ZoneId.of("Asia/Shanghai"));
         new Thread(new Runnable() {
@@ -65,8 +65,7 @@ public class InsertWeatherInfo {
                     }
                 } catch (Exception e) {
                     log.error(e.getMessage());
-                    log.info("中国气象局接入时间: " + dateTime.toString() + "Status: Fail");
-                    System.out.println("中国气象局接入时间: " + dateTime.toString() + "Status: Fail");
+                    e.printStackTrace();
                 }
             }
         }).start();
@@ -80,9 +79,16 @@ public class InsertWeatherInfo {
                 Observation observation = new Observation();
                 observation.setProcedureId(chinaWeather.getStationId());
                 observation.setObsTime(chinaWeather.getQueryTime());
-                observation.setMapping("china_2020");
-                observation.setObsProperty("AirQuality");
-                observation.setType("ch_weather");
+                observation.setMapping("ch_weather");
+                observation.setObsProperty("Weather");
+                observation.setType("CH_WEATHER");
+                WeatherStationModel weatherStationModel = weatherStationMapper.selectByStationId(chinaWeather.getStationId());
+                if (weatherStationModel!=null) {
+                    String wkt = "POINT(" + weatherStationModel.getLon() + " " + weatherStationModel.getLat() + ")";
+                    observation.setWkt(wkt);
+                    String bbox = weatherStationModel.getLon() + " " + weatherStationModel.getLat() + "," + weatherStationModel.getLon() + " " + weatherStationModel.getLat();
+                    observation.setBbox(bbox);
+                }
                 observation.setEndTime(observation.getObsTime());
                 observation.setBeginTime(observation.getObsTime());
                 observation.setOutId(chinaWeather.getId());
@@ -94,7 +100,6 @@ public class InsertWeatherInfo {
 //                    e.printStackTrace();
 //                }
                 if (flag) {
-                    System.out.println(observation.getProcedureId() + " :is existed");
                     obsFeignClient.insertData(observation);
                 } else {
                     log.info("procedure:" + observation.getProcedureId() + "不存在");
@@ -122,7 +127,7 @@ public class InsertWeatherInfo {
      */
     public List<ChinaWeather> getWeatherInfo() throws IOException, ParseException {
         List<ChinaWeather> res = new ArrayList<>();
-        List<WeatherStationModel> weatherStationModels = weatherStationMapper.selectByAll();
+        List<WeatherStationModel> weatherStationModels = weatherStationMapper.selectByStationType("wh_1+8_weather");
         for (int i=0; i< weatherStationModels.size();) {
             StringBuilder sb = new StringBuilder();
             for (int j = 0; j<20 && i< weatherStationModels.size(); j++) {

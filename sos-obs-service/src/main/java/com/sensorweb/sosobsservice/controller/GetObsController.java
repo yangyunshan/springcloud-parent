@@ -1,6 +1,7 @@
 package com.sensorweb.sosobsservice.controller;
 
 import com.sensorweb.datacenterutil.utils.DataCenterUtils;
+import com.sensorweb.sosobsservice.dao.ObservationMapper;
 import com.sensorweb.sosobsservice.entity.Observation;
 import com.sensorweb.sosobsservice.service.GetObservationExpandService;
 import com.sensorweb.sosobsservice.service.GetObservationService;
@@ -26,6 +27,9 @@ import java.util.*;
 public class GetObsController implements ObsConstant {
     @Autowired
     private GetObservationExpandService getObservationExpandService;
+
+    @Autowired
+    private ObservationMapper observationMapper;
 
     @ApiOperation("查询近一年各月的观测数据接入数量")
     @GetMapping(path = "getObservationCountOfMonth")
@@ -63,19 +67,28 @@ public class GetObsController implements ObsConstant {
         return getObservationExpandService.getObservationByPage(pageNum, pageSize);
     }
 
-    @GetMapping("getObservationByConditions")
-    public List<Observation> getObservationByConditions(String bbox, String timeBegin, String timeEnd, String type) {
-        List<Observation> res = new ArrayList<>();
-        try {
-            LocalDateTime begin = DataCenterUtils.string2LocalDateTime(timeBegin);
-            LocalDateTime end = DataCenterUtils.string2LocalDateTime(timeEnd);
-            Instant start = begin.atZone(ZoneId.of("Asia/Shanghai")).toInstant();
-            Instant stop = end.atZone(ZoneId.of("Asia/Shanghai")).toInstant();
-            res = getObservationExpandService.getObservationByConditions(bbox, start, stop, type);
-        } catch (Exception e) {
-            log.debug(e.getMessage());
+    @GetMapping(path = "getObservationByConditions")
+    public List<Observation> getObservationByConditions(@RequestParam("dataType") String dataType, @RequestParam("ranSpa") String ranSpa,
+                                                        @RequestParam("timeBegin") Instant timeBegin, @RequestParam("timeEnd") Instant timeEnd) {
+        if (ranSpa.equals("武汉城市圈")) {
+            List<Integer> cityIds = observationMapper.selectCityIdInWuCityCircle();
+            if (cityIds!=null && cityIds.size()>0) {
+                return observationMapper.selectByTemAndSpaAndType(timeBegin, timeEnd, dataType, ranSpa, cityIds);
+            }
+        } else if (ranSpa.equals("全国")) {
+            List<Integer> cityIds = observationMapper.selectCityIdInChina();
+            if (cityIds!=null && cityIds.size()>0) {
+                return observationMapper.selectByTemAndSpaAndType(timeBegin, timeEnd, dataType, ranSpa, cityIds);
+            }
+        } else if (ranSpa.equals("长江经济带")) {
+            List<Integer> cityIds = observationMapper.selectCityIdInChangjiang();
+            if (cityIds!=null && cityIds.size()>0) {
+                return observationMapper.selectByTemAndSpaAndType(timeBegin, timeEnd, dataType, ranSpa, cityIds);
+            }
         }
-        return res;
+        return null;
     }
+
+
 
 }

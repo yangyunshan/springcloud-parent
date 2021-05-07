@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -25,6 +28,11 @@ public class GetHimawariController {
     @Autowired
     private InsertHimawariService insertHimawariService;
 
+    /**
+     * 获取数据
+     * @param datetime yyyy-MM-ddTHH:mm:ss
+     * @return
+     */
     @GetMapping(value = "getHimawariData")
     public Map<String, String> getHimawariData(String datetime) {
 
@@ -44,9 +52,9 @@ public class GetHimawariController {
     }
 
     @GetMapping("getHimawariDataById")
-    public Map<String, Object> getHimawariDataById(@RequestParam("id") int id) {
-        Map<String, Object> res = new HashMap<>();
-        res.put("result", himawariMapper.selectById(id));
+    public Map<String, String> getHimawariDataById(@RequestParam("id") int id) {
+        Map<String, String> res = new HashMap<>();
+        res.put("result", himawariMapper.selectById(id).getLocalPath());
         return res;
     }
 }

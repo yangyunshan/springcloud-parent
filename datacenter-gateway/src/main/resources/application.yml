@@ -9,8 +9,8 @@ spring:
     name: datacenter-gateway
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/user_db
-    username: sensorweb
+    url: jdbc:postgresql://202.114.123.116:5432/postgres
+    username: postgres
     password: 12345
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
@@ -130,13 +130,29 @@ spring:
           # 加上StripPrefix=1,否则转发到后端服务时会带上gee前缀
           filters:
             - StripPrefix=1
+        - id: datacenter-offline-service
+            # lb代表从注册中心获取服务,且以负载均衡方式转发
+          uri: lb://datacenter-offline-service
+          predicates:
+            - Path=/offline/**
+            # 加上StripPrefix=1,否则转发到后端服务时会带上offline前缀
+          filters:
+            - StripPrefix=1
+        - id: datacenter-weather-service
+            # lb代表从注册中心获取服务,且以负载均衡方式转发
+          uri: lb://datacenter-weather-service
+          predicates:
+            - Path=/weather/**
+            # 加上StripPrefix=1,否则转发到后端服务时会带上weather前缀
+          filters:
+            - StripPrefix=1
 # eureka注册中心
 eureka:
   instance:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://localhost:7001/eureka/
+      defaultZone: http://202.114.123.116:7001/eureka/,http://202.114.123.116:7002/eureka/,http://202.114.123.116:7003/eureka/
 
 
 

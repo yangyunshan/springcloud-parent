@@ -10,11 +10,13 @@ import com.sensorweb.datacenterairservice.entity.TWEPA;
 import com.sensorweb.datacenterairservice.service.GetAirService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -83,53 +85,48 @@ public class GetAirQualityHour {
         return getAirService.getAirQualityHourNum();
     }
 
-    @GetMapping(path = "getExportHBAirDataByID")
-    public Map<String, String> getExportHBAirDataByID(@RequestParam(value = "ids") List<Integer> ids) {
+    @GetMapping(path = "getExportHBAirDataByIds")
+    public Map<String, String> getExportHBAirDataByIds(@RequestParam(value = "airQualityHours") List<Integer> ids) {
         Map<String, String> res = new HashMap<>();
         List<AirQualityHour> airQualityHours = new ArrayList<>();
-        if (ids!=null) {
+        if (ids!=null && ids.size()>0) {
             for (Integer id:ids) {
-                AirQualityHour info =  airQualityHourMapper.selectById(id);
-                airQualityHours.add(info);
+                AirQualityHour airQualityHour = airQualityHourMapper.selectById(id);
+                airQualityHours.add(airQualityHour);
             }
         }
         String filePath = getAirService.exportTXT_WH(airQualityHours);
-
         res.put("filePath", filePath);
         return res;
     }
 
-    @GetMapping(path = "getExportTWAirDataByID")
-    public Map<String, String> getExportTWAirDataByID(@RequestParam(value = "ids") List<Integer> ids) {
+    @GetMapping(path = "getExportTWAirDataByIds")
+    public Map<String, String> getExportTWAirDataByIds(@RequestParam(value = "twepas") List<Integer> ids) {
         Map<String, String> res = new HashMap<>();
         List<TWEPA> twepas = new ArrayList<>();
-        if (ids!=null) {
+        if (ids!=null && ids.size()>0) {
             for (Integer id:ids) {
-                TWEPA info =  twepaMapper.selectById(id);
-                twepas.add(info);
+                TWEPA twepa = twepaMapper.selectById(id);
+                twepas.add(twepa);
             }
         }
         String filePath = getAirService.exportTXT_TW(twepas);
-
         res.put("filePath", filePath);
         return res;
     }
 
-    @GetMapping(path = "getExportCHAirDataByID")
-    public Map<String, String> getExportCHAirDataByID(@RequestParam(value = "ids") List<Integer> ids) {
+    @GetMapping(path = "getExportCHAirDataByIds")
+    public Map<String, String> getExportCHAirDataByIds(@RequestParam(value = "chinaAirQualityHours") List<Integer> ids) {
         Map<String, String> res = new HashMap<>();
         List<ChinaAirQualityHour> chinaAirQualityHours = new ArrayList<>();
-        if (ids!=null) {
+        if (ids!=null && ids.size()>0) {
             for (Integer id:ids) {
-                ChinaAirQualityHour info =  chinaAirQualityHourMapper.selectById(id);
-                chinaAirQualityHours.add(info);
+                ChinaAirQualityHour chinaAirQualityHour = chinaAirQualityHourMapper.selectById(id);
+                chinaAirQualityHours.add(chinaAirQualityHour);
             }
         }
         String filePath = getAirService.exportTXT_CH(chinaAirQualityHours);
-
         res.put("filePath", filePath);
         return res;
     }
-
-
 }

@@ -36,7 +36,6 @@ import java.util.List;
 @Service
 @EnableScheduling
 public class InsertLAADSService implements LAADSConstant {
-    private final  String procedureId = "urn:JMA:def:identifier:OGC:2.0:laads";
 
     @Autowired
     private EntryMapper entryMapper;
@@ -47,11 +46,8 @@ public class InsertLAADSService implements LAADSConstant {
     @Autowired
     private SensorFeignClient sensorFeignClient;
 
-    @Value("${datacenter.path.modis.laads}")
+    @Value("${datacenter.path.laads}")
     private String filePath;
-
-    @Value("${datacenter.domain}")
-    private String domain;
 
     @Scheduled(cron = "0 30 0 * * ?")//每天的0:30分执行一次
     public void insertDataByDay() {
@@ -71,9 +67,15 @@ public class InsertLAADSService implements LAADSConstant {
                             //通过接口内容可知AM1M卫星生产Terra MODIS, PM1M卫星生产Aqua MODIS, AMPM卫星生产Combined Aqua和Terra MODIS
                             //对于AMPM卫星,由于目前无法确定那些产品事Terra MODIS,所以暂时只接入AM1M和PM1M卫星的数据
                             if (satelliteInstrument.getName().equals("AM1M") || satelliteInstrument.getName().equals("PM1M")) {
-                                insertData(satelliteInstrument.getName(), start, stop, bbox, "");
-                                log.info("LAADS接入时间: " + calendar.getTime().toString() + "Status: Success");
-                                System.out.println("LAADS接入时间: " + calendar.getTime().toString() + "Status: Success");
+                                String[] products = new String[] {"MOD11A1","MOD11A2","MYD11A1","MOD13A2"};
+                                for (String product:products) {
+                                    boolean flag = insertData(satelliteInstrument.getName(), start, stop, bbox, product);
+                                    if (flag) {
+                                        log.info("LAADS接入时间: " + calendar.getTime().toString() + "Status: Success");
+                                        System.out.println("LAADS接入时间: " + calendar.getTime().toString() + "Status: Success");
+                                    }
+                                }
+
                             }
                         }
                     }
@@ -230,7 +232,7 @@ public class InsertLAADSService implements LAADSConstant {
             fos.write(getData);
             fos.close();
             inputStream.close();
-            res = domain + "/" + filePath.substring(10) + fileName;
+            res = filePath + fileName;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -346,6 +348,7 @@ public class InsertLAADSService implements LAADSConstant {
      */
     @Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean insertData(String satellite, String startTime, String endTime, String bbox, String productName) throws Exception {
+        String procedureId = "urn:JMA:def:identifier:OGC:2.0:laads";
         String procedure = procedureId + ":" + satellite;
         String obsProperty = "";
         switch (satellite) {
@@ -376,8 +379,6 @@ public class InsertLAADSService implements LAADSConstant {
                     List<LAADSCollection> collections = getCollectionsByProduct(product);
                     if (collections!=null && collections.size()>0) {
                         for (LAADSCollection collection:collections) {
-//                        index++;
-//                        System.out.println(index + ": " + product + ": " + collection.getName());
                             String response = getInfoByOpenSearch(product, Integer.parseInt(collection.getName()), startTime, endTime, bbox);
                             List<Entry> entries = getEntryInfo(response);
                             entryList.addAll(entries);
@@ -390,7 +391,7 @@ public class InsertLAADSService implements LAADSConstant {
                                             boolean flag = file.mkdirs();
                                         }
                                         String localPath = downloadFromUrl(entry.getLink(), fileName, filePath);
-                                        entry.setFilePath("localPath");
+                                        entry.setFilePath(localPath);
                                     }
                                     //远程文件下载到本地，并记录本地存储路径
                                     Observation observation = new Observation();
@@ -428,7 +429,7 @@ public class InsertLAADSService implements LAADSConstant {
                                             boolean flag = file.mkdirs();
                                         }
                                         String localPath = downloadFromUrl(entry.getLink(), fileName, filePath);
-                                        entry.setFilePath("localPath");
+                                        entry.setFilePath(localPath);
                                     }
                                     //远程文件下载到本地，并记录本地存储路径
                                     Observation observation = new Observation();
