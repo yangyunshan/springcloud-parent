@@ -69,13 +69,18 @@ public class GetGenProductController {
      * @return
      */
     @GetMapping(value = "getFilePath")
-    public Map<String, String> getFilePath(@RequestParam("productType") String productType, @RequestParam("spaRes") String spaRes,
+    public List<Map<String, String>> getFilePath(@RequestParam("productType") String productType, @RequestParam("spaRes") String spaRes,
                            @RequestParam("ranType") String ranType, @RequestParam("ranSpa") String ranSpa,
                            @RequestParam("timeRes") String timeRes, @RequestParam("timeBegin") String timeBegin,
                            @RequestParam("timeEnd") String timeEnd) {
-        GenProduct genProduct = getGenProductService.getGenProductByType(productType);
+        List<Map<String, String>> res = new ArrayList<>();
+        GenProduct genProduct = getGenProductService.getGenProductByTypeAndRegion(productType, ranSpa);
         String[] dataTypes = genProduct.getDataNeeded().split(",");
+        System.out.println("数据类别数：" + dataTypes.length + "-->" + Arrays.toString(dataTypes));
         for (String dataType:dataTypes) {
+            if (dataType.equals("Himawari")) {
+                System.out.println("---------------begin------------------");
+            }
             try {
                 LocalDateTime start = string2LocalDateTime3(timeBegin);
                 Instant begin = start.atZone(ZoneId.of("Asia/Shanghai")).toInstant();
@@ -89,13 +94,14 @@ public class GetGenProductController {
                         begin = begin.plusSeconds(60*60);
                     }
                 }
-                return getData(timeObservations, dataType);
+                res.addAll(getData(timeObservations, dataType));
+                System.out.println("--------------end--------------");
             } catch (Exception e) {
                 log.error(e.getMessage());
                 e.printStackTrace();
             }
         }
-        return null;
+        return res;
     }
 
     public List<Integer> getOutIdByObsList(List<Observation> obs) {
@@ -108,22 +114,33 @@ public class GetGenProductController {
         return res;
     }
 
-    public Map<String, String> getData(Map<String, List<Observation>> timeObservations, String dataType) {
-        Map<String, String> res = new HashMap<>();
+    public List<Map<String, String>> getData(Map<String, List<Observation>> timeObservations, String dataType) {
+        List<Map<String, String>> res = new ArrayList<>();
         if (timeObservations!=null && timeObservations.size()>0) {
             Set<String> keys = timeObservations.keySet();
             for (String key:keys) {
+                if (dataType.equals("Himawari")) {
+                    List<Integer> ids = getOutIdByObsList(timeObservations.get(key));
+                    System.out.println(timeObservations.get(key).size() + "----" + ids);
+                }
                 List<Integer> ids = getOutIdByObsList(timeObservations.get(key));
+                Map<String, String> temp = new HashMap<>();
                 if (dataType.equals("HB_AIR")) {
-                    res.put(key, airFeignClient.getExportHBAirDataByIds(ids).get("filePath"));
+                    temp.put(key, airFeignClient.getExportHBAirDataByIds(ids).get("filePath"));
+                    res.add(temp);
                 } else if (dataType.equals("CH_AIR")) {
-                    res.put(key, airFeignClient.getExportCHAirDataByIds(ids).get("filePath"));
+                    temp.put(key, airFeignClient.getExportCHAirDataByIds(ids).get("filePath"));
+                    res.add(temp);
                 } else if (dataType.equals("TW_EPA_AIR")) {
-                    res.put(key, airFeignClient.getExportTWAirDataByIds(ids).get("filePath"));
+                    temp.put(key, airFeignClient.getExportTWAirDataByIds(ids).get("filePath"));
+                    res.add(temp);
                 } else if (dataType.equals("CH_WEATHER")) {
-                    res.put(key, weatherFeignClient.getExportWeatherDataByIds(ids).get("filePath"));
+                    temp.put(key, weatherFeignClient.getExportWeatherDataByIds(ids).get("filePath"));
+                    res.add(temp);
                 } else if (dataType.equals("Himawari")) {
-                    res.put(key, himawariFeignClient.getHimawariDataById(ids.get(0)).get("result"));
+                    System.out.println("Himawari: " + ids);
+                    temp.put(key, himawariFeignClient.getHimawariDataById(ids.get(0)).get("result"));
+                    res.add(temp);
                 }
             }
         }

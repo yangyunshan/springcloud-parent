@@ -12,4 +12,5 @@ public class GenProduct {
     private String productType;
     private String dataNeeded;
     private String moduleNeeded;
+    private String region;
 }

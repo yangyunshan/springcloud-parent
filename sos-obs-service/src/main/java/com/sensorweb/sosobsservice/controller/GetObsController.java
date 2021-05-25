@@ -70,6 +70,7 @@ public class GetObsController implements ObsConstant {
     @GetMapping(path = "getObservationByConditions")
     public List<Observation> getObservationByConditions(@RequestParam("dataType") String dataType, @RequestParam("ranSpa") String ranSpa,
                                                         @RequestParam("timeBegin") Instant timeBegin, @RequestParam("timeEnd") Instant timeEnd) {
+
         if (ranSpa.equals("武汉城市圈")) {
             List<Integer> cityIds = observationMapper.selectCityIdInWuCityCircle();
             if (cityIds!=null && cityIds.size()>0) {

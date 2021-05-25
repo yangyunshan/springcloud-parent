@@ -73,16 +73,16 @@
     <select id="selectByTemAndSpaAndType" parameterType="java.util.List" resultMap="observation">
         SELECT <include refid="selectFields"></include>
         FROM observation
-        WHERE begin_time <![CDATA[>=]]> #{begin} AND end_time <![CDATA[<=]]> #{end} AND obs_type = #{type}
-        <foreach collection="list" item="item" index="index" separator=",">
-            <if test="region == '武汉城市圈'">
-                AND ST_Within(geom, (SELECT geom FROM wuhancitycircle WHERE gid = #{item})) = true
+        WHERE begin_time <![CDATA[>=]]> #{begin} AND end_time <![CDATA[<=]]> #{end} AND obs_type = #{type} AND
+        <foreach collection="cityIds" item="item" index="index" separator="OR" open="(" close=")">
+            <if test="spa == '武汉城市圈'">
+                ST_Intersects(geom, (SELECT geom FROM wuhancitycircle WHERE gid = #{item})) = true
             </if>
-            <if test="region == '全国'">
-                AND ST_Within(geom, (SELECT geom FROM china_1984_mian WHERE gid = #{item})) = true
+            <if test="spa == '全国'">
+                ST_Intersects(geom, (SELECT geom FROM china_1984_mian WHERE gid = #{item})) = true
             </if>
-            <if test="region == '长江经济带'">
-                AND ST_Within(geom, (SELECT geom FROM changjiang WHERE gid = #{item})) = true
+            <if test="spa == '长江经济带'">
+                ST_Intersects(geom, (SELECT geom FROM changjiang WHERE gid = #{item})) = true
             </if>
         </foreach>
     </select>
@@ -90,7 +90,7 @@
     <select id="selectBySpatial" resultMap="observation">
         SELECT <include refid="selectFields"></include>
         FROM observation
-        WHERE ST_Within(ST_GeomFromText(#{bbox}, 4326), geom) = true
+        WHERE ST_Intersects(ST_GeomFromText(#{bbox}, 4326), geom) = true
     </select>
 
     <select id="selectCityIdInWuCityCircle" resultType="int">

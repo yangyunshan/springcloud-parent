@@ -33,6 +33,12 @@
         WHERE product_type = #{type}
     </select>
 
+    <select id="selectByTypeAndRegion" resultMap="genProduct">
+        SELECT <include refid="selectFields"></include>
+        FROM product_info
+        WHERE product_type = #{type} AND region = #{region}
+    </select>
+
     <resultMap id="genProduct" type="GenProduct">
         <id column="id" property="id"/>
         <result column="product_type" property="productType"/>

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Calendar;
 import java.util.List;
 
 @Slf4j
@@ -48,12 +49,12 @@ public class GetWeatherInfo {
     public String writeTXT(String str) {
         try {
             /* 写入Txt文件 */
-            File writename = new File(exportDir + "weatherdata.txt");
+            File writename = new File(exportDir + Calendar.getInstance().getTimeInMillis() + "weatherdata.txt");
             BufferedWriter out = new BufferedWriter(new FileWriter(writename));
             out.write(str);
             out.flush();
             out.close();
-            return exportDir + "weatherdata.txt";
+            return exportDir + Calendar.getInstance().getTimeInMillis() + "weatherdata.txt";
         } catch (Exception e) {
             e.printStackTrace();
         }
